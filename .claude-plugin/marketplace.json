@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "silas-plugins",
+  "name": "crouton-kit",
   "version": "1.0.0",
   "owner": {
     "name": "Silas Rhyneer",
