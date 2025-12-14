@@ -1,0 +1,49 @@
+{
+  "name": "silas-plugins",
+  "owner": {
+    "name": "Silas Rhyneer",
+    "email": "silas@example.com"
+  },
+  "metadata": {
+    "description": "Personal Claude Code plugins for development workflows",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "dev-agents",
+      "source": "./plugins/dev-agents",
+      "description": "Implementation agents for task delegation (programmer, junior-engineer, library-docs-writer)",
+      "version": "1.0.0",
+      "keywords": ["agents", "implementation", "delegation"]
+    },
+    {
+      "name": "code-review",
+      "source": "./plugins/code-review",
+      "description": "Code review agents and quality checking hooks",
+      "version": "1.0.0",
+      "keywords": ["review", "quality", "agents"]
+    },
+    {
+      "name": "git-workflow",
+      "source": "./plugins/git-workflow",
+      "description": "Git automation with logical commit creation",
+      "version": "1.0.0",
+      "keywords": ["git", "commits", "workflow"]
+    },
+    {
+      "name": "knowledge-capture",
+      "source": "./plugins/knowledge-capture",
+      "description": "Requirements gathering, interviews, and learning commands",
+      "version": "1.0.0",
+      "keywords": ["requirements", "interview", "learning"]
+    },
+    {
+      "name": "dev-utilities",
+      "source": "./plugins/dev-utilities",
+      "description": "Developer utilities (notifications, command creation)",
+      "version": "1.0.0",
+      "keywords": ["utilities", "notifications"]
+    }
+  ]
+}

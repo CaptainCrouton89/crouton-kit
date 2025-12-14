@@ -1,0 +1,8 @@
+{
+  "name": "dev-utilities",
+  "version": "1.0.0",
+  "description": "Developer utilities (notifications, command creation)",
+  "author": {
+    "name": "Silas Rhyneer"
+  }
+}
