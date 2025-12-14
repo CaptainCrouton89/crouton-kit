@@ -1,14 +1,12 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "silas-plugins",
+  "version": "1.0.0",
   "owner": {
     "name": "Silas Rhyneer",
     "email": "silas@example.com"
   },
-  "metadata": {
-    "description": "Personal Claude Code plugins for development workflows",
-    "version": "1.0.0",
-    "pluginRoot": "./plugins"
-  },
+  "description": "Personal Claude Code plugins for development workflows",
   "plugins": [
     {
       "name": "dev-agents",
