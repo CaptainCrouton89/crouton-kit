@@ -1,0 +1,8 @@
+{
+  "name": "rpi",
+  "version": "1.0.0",
+  "description": "Feature development workflow: arch → plan → implement → review → fix",
+  "author": {
+    "name": "Silas Rhyneer"
+  }
+}

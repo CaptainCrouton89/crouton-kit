@@ -42,6 +42,27 @@
       "description": "Developer utilities (notifications, command creation)",
       "version": "1.0.0",
       "keywords": ["utilities", "notifications"]
+    },
+    {
+      "name": "debugging",
+      "source": "./plugins/debugging",
+      "description": "Systematic debugging and bug investigation workflows",
+      "version": "1.0.0",
+      "keywords": ["debug", "bugs", "investigation"]
+    },
+    {
+      "name": "rpi",
+      "source": "./plugins/rpi",
+      "description": "Feature development workflow: arch → plan → implement → review → fix",
+      "version": "1.0.0",
+      "keywords": ["workflow", "development", "planning"]
+    },
+    {
+      "name": "web",
+      "source": "./plugins/web",
+      "description": "Web development tools including frontend design workflows",
+      "version": "1.0.0",
+      "keywords": ["web", "frontend", "design"]
     }
   ]
 }
