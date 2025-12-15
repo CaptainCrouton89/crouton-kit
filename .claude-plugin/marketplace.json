@@ -9,18 +9,18 @@
   "description": "Personal Claude Code plugins for development workflows",
   "plugins": [
     {
-      "name": "dev-agents",
-      "source": "./plugins/dev-agents",
-      "description": "Implementation agents for task delegation (programmer, junior-engineer, library-docs-writer)",
+      "name": "devcore",
+      "source": "./plugins/devcore",
+      "description": "Core development agents and code quality hooks",
       "version": "1.0.0",
-      "keywords": ["agents", "implementation", "delegation"]
+      "keywords": ["agents", "code-review", "quality"]
     },
     {
-      "name": "code-review",
-      "source": "./plugins/code-review",
-      "description": "Code review agents and quality checking hooks",
+      "name": "learn",
+      "source": "./plugins/learn",
+      "description": "Interactive learning commands to help users understand code deeply",
       "version": "1.0.0",
-      "keywords": ["review", "quality", "agents"]
+      "keywords": ["learning", "education", "interactive"]
     },
     {
       "name": "git-workflow",
