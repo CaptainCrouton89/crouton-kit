@@ -1,8 +1,0 @@
-{
-  "name": "dev-agents",
-  "version": "1.0.0",
-  "description": "Implementation agents for task delegation",
-  "author": {
-    "name": "Silas Rhyneer"
-  }
-}
