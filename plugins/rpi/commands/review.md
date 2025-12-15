@@ -27,7 +27,7 @@ Assess the implementation completed in this conversation. Identify issues, valid
 
 Spawn review agents **per vertical slice** (not per concern). Each agent assesses a cohesive unit of work across all quality dimensions.
 
-For each vertical slice, spawn a `devcore:code-reviewer` agent with `run_in_background: true` to assess:
+For each vertical slice, spawn a `devcore:programmer` agent with `run_in_background: true` to assess:
 
 - **Plan adherence** — Does the implementation match what the plan specified?
 - **Code smells** — Are there any anti-patterns, unnecessary complexity, or maintainability concerns?

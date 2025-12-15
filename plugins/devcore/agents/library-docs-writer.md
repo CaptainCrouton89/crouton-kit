@@ -52,4 +52,4 @@ Ask: "Would Claude make a mistake without this?"
 - No → exclude
 - Yes → include with minimal context
 
-Save to `docs/external/[library]-llm-ref.md`
+Save to `{cwd}/.claude/docs/external/[library]/[topic].docs.md`
