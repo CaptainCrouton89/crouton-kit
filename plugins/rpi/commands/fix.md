@@ -36,8 +36,8 @@ Group fixes by:
 
 For each fix (or group of related fixes):
 
-- Use `silas-toolkit:junior-engineer` for straightforward fixes
-- Use `silas-toolkit:programmer` for fixes requiring broader changes
+- Use `devcore:junior-engineer` for straightforward fixes
+- Use `devcore:programmer` for fixes requiring broader changes
 - Always use `run_in_background: true` for independent fixes
 
 **Agent prompt should include:**
