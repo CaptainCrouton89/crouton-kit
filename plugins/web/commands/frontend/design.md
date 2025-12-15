@@ -42,27 +42,15 @@ Propose 5-7 complete layout approaches like:
 
 **Question 3 - Color Psychology & Emotion:**
 
-Propose 5-7 emotional palettes with specific hex codes:
+Propose 5-7 emotional palettes with specific hex codes
 - "Trust & Professionalism" - Primary: #2563eb (blue), Neutral: #64748b (slate gray), Accent: #0891b2 (cyan), conservative and reliable
-- "Energy & Action" - Primary: #ea580c (vibrant orange), Neutral: #292524 (warm black), Accent: #dc2626 (red), bold and motivating
-- "Calm & Focus" - Primary: #059669 (emerald), Neutral: #78716c (stone), Accent: #0d9488 (teal), gentle and centering
-- "Premium & Sophisticated" - Primary: #7c3aed (deep purple), Neutral: #18181b (rich black), Accent: #eab308 (gold), luxurious feel
-- "Friendly & Approachable" - Primary: #f59e0b (warm amber), Neutral: #57534e (warm gray), Accent: #fb923c (soft orange), inviting
-- "Monochrome Elegance" - Primary: #000000 (black), Neutral: #a3a3a3 (neutral gray), Accent: #ffffff (white), timeless simplicity
-- "Sunset Warmth" - Primary: #f97316 (orange), Neutral: #fef3c7 (cream), Accent: #dc2626 (deep red), cozy and comfortable
-- [Custom palette based on brand if mentioned]
+- etc...
 
 **Question 4 - Typography & Text Personality:**
 
 Propose 5-7 typography systems:
 - "Modern Sans Authority" - Headings: Inter/SF Pro, Body: System-ui, clean, professional, highly readable, tech-forward
-- "Classic Serif Elegance" - Headings: Crimson Text/Lora, Body: Georgia, timeless, editorial, sophisticated reading experience
-- "Monospace Technical" - Headings: JetBrains Mono, Body: IBM Plex Mono, developer-focused, technical precision, code-friendly
-- "Mixed Contrast Drama" - Headings: Display font (Abril Fatface/Playfair), Body: Clean sans (Inter), high contrast, editorial impact
-- "Rounded Friendly" - Headings: Nunito/Quicksand, Body: Nunito, approachable, soft, welcoming, reduces formality
-- "Geometric Precision" - Headings: Montserrat/Poppins, Body: Work Sans, clean lines, modern minimalism, Swiss design influence
-- "Humanist Warmth" - Headings: Merriweather/Source Serif, Body: Source Sans, organic, readable, human-centered design
-- [Custom option based on brand personality]
+- etc...
 
 ## Step 3: Clarifying Questions
 
