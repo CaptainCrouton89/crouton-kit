@@ -1,0 +1,8 @@
+{
+  "name": "learn",
+  "version": "1.0.0",
+  "description": "Interactive learning commands to help users understand code deeply",
+  "author": {
+    "name": "Silas Rhyneer"
+  }
+}
