@@ -65,7 +65,7 @@ Crouton Kit is a comprehensive suite of Claude Code plugins that provide special
 
 Before installing Crouton Kit plugins, ensure you have:
 
-1. **Claude Code** - You need to have Claude Code (Claude.ai with Code capabilities) or Claude Desktop with MCP enabled
+1. **Claude Desktop** - You need to have Claude Desktop application installed with plugin support enabled. For more information about Claude Desktop and plugins, visit the [official Anthropic documentation](https://docs.anthropic.com/)
 2. **Git** - Version control system for cloning the repository
 3. **A code editor or IDE** - Such as VS Code, Cursor, or other editors that support Claude Code plugins
 
@@ -117,11 +117,18 @@ cd ~/Library/Application\ Support/Claude/plugins/
 # Linux
 cd ~/.config/Claude/plugins/
 
-# Windows
-cd %APPDATA%\Claude\plugins\
+# Windows (PowerShell)
+cd "$env:APPDATA\Claude\plugins\"
 
-# Create symlink to the crouton-kit repository
-ln -s /path/to/crouton-kit/plugins/* .
+# Create symlinks to individual plugins (macOS/Linux)
+for plugin in /path/to/crouton-kit/plugins/*/; do
+  ln -s "$plugin" .
+done
+
+# Windows (PowerShell) - Create symlinks to individual plugins
+Get-ChildItem -Path "C:\path\to\crouton-kit\plugins" -Directory | ForEach-Object {
+  New-Item -ItemType SymbolicLink -Path "." -Name $_.Name -Target $_.FullName
+}
 ```
 
 Replace `/path/to/crouton-kit` with the actual path where you cloned the repository.
@@ -151,9 +158,18 @@ cd ~/Library/Application\ Support/Claude/plugins/  # or ~/.config/Claude/plugins
 ln -s /path/to/crouton-kit/plugins/learn .
 ln -s /path/to/crouton-kit/plugins/debugging .
 
+# Windows (PowerShell) - Using symlink
+cd "$env:APPDATA\Claude\plugins\"
+New-Item -ItemType SymbolicLink -Path "." -Name "learn" -Target "C:\path\to\crouton-kit\plugins\learn"
+New-Item -ItemType SymbolicLink -Path "." -Name "debugging" -Target "C:\path\to\crouton-kit\plugins\debugging"
+
 # Using copy (macOS)
 cp -r /path/to/crouton-kit/plugins/learn ~/Library/Application\ Support/Claude/plugins/
 cp -r /path/to/crouton-kit/plugins/debugging ~/Library/Application\ Support/Claude/plugins/
+
+# Windows (PowerShell) - Using copy
+Copy-Item -Path "C:\path\to\crouton-kit\plugins\learn" -Destination "$env:APPDATA\Claude\plugins\" -Recurse
+Copy-Item -Path "C:\path\to\crouton-kit\plugins\debugging" -Destination "$env:APPDATA\Claude\plugins\" -Recurse
 ```
 
 ### Step 5: Restart Claude Code
@@ -236,8 +252,16 @@ The changes will automatically be reflected in Claude Code after restarting.
 You'll need to re-copy the updated plugins:
 
 ```bash
-# Remove old plugins
-rm -rf ~/Library/Application\ Support/Claude/plugins/*
+# WARNING: The following commands will remove ALL crouton-kit plugins.
+# If you have other plugins installed, be careful not to delete them.
+
+# Option 1: Remove only crouton-kit plugins individually (recommended)
+# macOS/Linux
+cd ~/Library/Application\ Support/Claude/plugins/  # or ~/.config/Claude/plugins/ on Linux
+rm -rf devcore learn git-workflow knowledge-capture dev-utilities debugging rpi web
+
+# Option 2: Remove all plugins (use with caution)
+# rm -rf ~/Library/Application\ Support/Claude/plugins/*
 
 # Copy updated plugins
 cp -r /path/to/crouton-kit/plugins/* ~/Library/Application\ Support/Claude/plugins/
