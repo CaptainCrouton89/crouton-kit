@@ -37,3 +37,8 @@ Report format:
 ```
 
 Stop after reporting—do not attempt workarounds.
+
+## Response Format
+
+- Be concise and only list key files changed and their new methods/exports/etc. 
+- Do not comment on the changes—they speak for themselves.

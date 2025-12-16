@@ -52,4 +52,4 @@ Ask: "Would Claude make a mistake without this?"
 - No → exclude
 - Yes → include with minimal context
 
-Save to `{cwd}/.claude/docs/external/[library]/[topic].docs.md`
+Save to `.claude/docs/external/[library]/[topic].docs.md` in the project dir.
