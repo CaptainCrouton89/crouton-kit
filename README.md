@@ -121,17 +121,19 @@ cd ~/.config/Claude/plugins/
 cd "$env:APPDATA\Claude\plugins\"
 
 # Create symlinks to individual plugins (macOS/Linux)
+# Replace /path/to/crouton-kit with the actual path where you cloned the repository
 for plugin in /path/to/crouton-kit/plugins/*/; do
   ln -s "$plugin" .
 done
 
 # Windows (PowerShell) - Create symlinks to individual plugins
+# Replace C:\path\to\crouton-kit with the actual path where you cloned the repository
 Get-ChildItem -Path "C:\path\to\crouton-kit\plugins" -Directory | ForEach-Object {
   New-Item -ItemType SymbolicLink -Path "." -Name $_.Name -Target $_.FullName
 }
 ```
 
-Replace `/path/to/crouton-kit` with the actual path where you cloned the repository.
+**Note:** Replace `/path/to/crouton-kit` (or `C:\path\to\crouton-kit` on Windows) with the actual path where you cloned the repository.
 
 #### Option B: Copy Method
 
@@ -258,6 +260,7 @@ You'll need to re-copy the updated plugins:
 # Option 1: Remove only crouton-kit plugins individually (recommended)
 # macOS/Linux
 cd ~/Library/Application\ Support/Claude/plugins/  # or ~/.config/Claude/plugins/ on Linux
+# Note: Update this list if new plugins are added to crouton-kit
 rm -rf devcore learn git-workflow knowledge-capture dev-utilities debugging rpi web
 
 # Option 2: Remove all plugins (use with caution)
