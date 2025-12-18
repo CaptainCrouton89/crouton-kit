@@ -49,8 +49,8 @@ Create a comprehensive, actionable implementation plan based on the feature spec
    
    - **Large plans** (many files, complex cross-cutting changes)
      - Create a master plan document that outlines phases, using two or more `silas-toolkit:planner` agents.
-     - Afterwards, delegate each phase to a `silas-toolkit:planner` agent to create detailed sub-plans
-     - **Sub-plans are saved as separate documents** in `{cwd}/.claude/plans/`
+     - Afterwards, delegate each phase to a `silas-toolkit:planner` agent to create detailed sub-plans. These should be the more in depth, focusing on edgecases, tests, and finding best practices and patterns which might not be covered in detail in the master plan.
+     - **Sub-plans are saved as separate documents** in `{cwd}/.claude/plans/`. Each plan agent should save the plan they created.
      - **Link to sub-plans from each phase** in the master plan
 
 ## Plan Document Requirements
