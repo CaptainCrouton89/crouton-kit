@@ -90,7 +90,7 @@ Only run if the user confirms, for large multi-domain features.
 
 ### 2. Create Context Documents
 
-Save to `{cwd}/.claude/context/` with descriptive names (e.g., `{topic}-data.context.md`, `{topic}-api.context.md`).
+Save to the spec to the project's .claude directory, at `.claude/context/` with descriptive names (e.g., `{topic}-data.context.md`, `{topic}-api.context.md`).
 
 Each context document should include:
 - Relevant file paths and key code patterns

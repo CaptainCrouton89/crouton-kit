@@ -77,7 +77,7 @@ Create a comprehensive, actionable implementation plan based on the feature spec
 
 ## Output
 
-Save the master plan to `{cwd}/.claude/plans/` with a descriptive name (e.g., `implement-auth-flow.plan.md`).
+Save the master plan to the project's .claude directory at `.claude/plans/` with a descriptive name (e.g., `implement-auth-flow.plan.md`).
 
 For large plans with sub-plans, list the linked sub-plan documents.
 
