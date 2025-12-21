@@ -1,8 +1,0 @@
-{
-  "name": "git-workflow",
-  "version": "1.0.0",
-  "description": "Git automation with logical commit creation",
-  "author": {
-    "name": "Silas Rhyneer"
-  }
-}
