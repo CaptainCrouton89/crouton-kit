@@ -1,60 +1,88 @@
-## Issue Tracking with bd (beads)
+# CLAUDE.md
 
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-### Quick Start
+## Overview
 
-**Check for ready work:**
-```bash
-bd ready --json
+This is a **Claude Code plugin collection**—a set of plugins that extend Claude Code with custom commands, agents, rules, and hooks. Each subdirectory (e.g., `devcore/`, `rpi/`, `git-smart/`) is a standalone plugin.
+
+## Plugin Structure
+
+Each plugin follows this structure:
+```
+plugin-name/
+├── .claude-plugin/
+│   └── plugin.json          # Plugin metadata (name, version, description)
+├── commands/                 # Slash commands (*.md)
+├── agents/                   # Agent definitions (*.md)
+├── rules/                    # Auto-applied rules (*.md with paths frontmatter)
+├── hooks/                    # Lifecycle hooks (hooks.json)
+├── output-styles/            # Custom output styles (*.md)
+└── skills/                   # Reusable skills (SKILL.md)
 ```
 
-**Create new issues:**
-```bash
-bd create "Issue title" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" -p 1 --deps discovered-from:bd-123 --json
-bd create "Subtask" --parent <epic-id> --json
+## Writing Plugin Components
+
+### Commands (`commands/*.md`)
+Slash commands specify **constraints and mode**, not instructions. Claude already knows how to do most things.
+
+**Structure:**
+```markdown
+---
+description: One-line description (shows in /help)
+allowed-tools: Tool(pattern:*), Tool(pattern:*)
+argument-hint: [arg1] [arg2]
+---
+
+Prompt content. Set role, constraints, then get out of the way.
 ```
 
-**Claim and update:**
+**Features:**
+- `$ARGUMENTS` - all args as string, or `$1`, `$2` for positional
+- `` !`git status` `` - inline bash output
+- `@path/to/file.ts` - file reference
+
+**Rules:** Minimal tokens, constraints > procedures, limit allowed-tools, one concern per command.
+
+### Agents (`agents/*.md`)
+Background workers spawned via Task tool. Same frontmatter plus:
+- `model: sonnet|opus|haiku` - override default model
+- `color: blue|green|...` - status display color
+
+### Rules (`rules/*.md`)
+Auto-applied constraints for matching files:
+```markdown
+---
+paths:
+  - "src/**/*.ts"
+  - "**/*.test.ts"
+---
+
+Declarative constraints here.
+```
+Omit `paths` for rules that apply everywhere.
+
+## Key Plugins
+
+| Plugin | Purpose |
+|--------|---------|
+| `devcore` | Core agents (programmer, junior-engineer), code quality rules, code-review command |
+| `rpi` | Feature workflow: `/arch` → `/plan` → `/implement` → `/review` → `/fix` |
+| `git-smart` | Safe commit workflow with security scanning |
+| `debugging` | `/debug` and `/investigate-fix` commands |
+| `knowledge-capture` | `/interview`, `/learn`, `/collaborate` |
+
+## Issue Tracking (bd/beads)
+
+**IMPORTANT**: Use `bd` (beads) for ALL issue tracking. No markdown TODOs.
+
 ```bash
-bd update bd-42 --status in_progress --json
-bd update bd-42 --priority 1 --json
+bd ready              # Show unblocked work
+bd create "Title" -t task -p 2   # Create issue (priority 0-4)
+bd update <id> --status in_progress
+bd close <id>
+bd sync               # Push to git
 ```
 
-**Complete work:**
-```bash
-bd close bd-42 --reason "Completed" --json
-```
-
-### Issue Types
-
-- `bug` - Something broken
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
-- `chore` - Maintenance (dependencies, tooling)
-
-### Priorities
-
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (default, nice-to-have)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
-
-### Workflow
-
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task**: `bd update <id> --status in_progress`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue: `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-6. **Commit together**: Always commit `.beads/issues.jsonl` with code changes
-
-### Important Rules
-
-- Always use `--json` flag for programmatic use
-- Link discovered work with `discovered-from` dependencies
-- Check `bd ready` before asking "what should I work on?"
-- Run `bd <cmd> --help` to discover available flags
+Types: `bug`, `feature`, `task`, `epic`, `chore`
+Priorities: 0=critical, 1=high, 2=medium, 3=low, 4=backlog

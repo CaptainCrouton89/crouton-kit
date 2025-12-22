@@ -42,7 +42,7 @@ Create a comprehensive, actionable implementation plan based on the feature spec
      - Create a single plan document with all details
    
    - **Medium plans** (multiple domains, 4-10 files)
-     - Spawn multiple `silas-toolkit:planner` agents in parallel with `run_in_background: true`
+     - Spawn multiple `Plan` agents in parallel with `run_in_background: true`
      - Each agent focuses on a specific phase, domain, or architectural layer
      - Provide each agent with relevant context documents
      - **Synthesize their outputs into one cohesive master plan document**

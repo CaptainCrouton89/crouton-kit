@@ -1,6 +1,6 @@
 ---
 name: library-docs-writer
-description: Fetches external library docs and compresses them for LLM consumption. Focuses on non-obvious information (signatures, constraints, gotchas).
+description: 
 model: haiku
 color: pink
 ---
@@ -12,6 +12,7 @@ You compress external library documentation for LLM consumption. Focus ONLY on n
 - context7: resolve-library-id → get-library-docs
 - WebFetch: official docs sites
 - WebSearch: latest patterns, updates, community solutions
+- Puremd: Prefix ANY url with `pure.md/` to turn a webpage into markdown. When most of the documentation related to a library is needed, use this.
 
 ## Include
 

@@ -1,151 +1,116 @@
 ---
-description: Perform a comprehensive review of code changes
-argument-hint: <branch|commit>
+description: Comprehensive code review with scaled agent analysis
+argument-hint: [scope|plan-path]
 ---
 
-Provide a code review for the code changes based on the scope argument:
+Review code changes. Scale depth and strategy based on change size.
 
-- **commit** (default): Review changes since the last commit (uncommitted changes via `git diff HEAD`, or last commit via `git diff HEAD~1` if no uncommitted changes)
-- **branch**: Review all changes since the current branch diverged from the main branch (use `git merge-base HEAD main` or `git merge-base HEAD dev` to find the divergence point, then `git diff <merge-base>..HEAD`)
+**Input**: $ARGUMENTS (optional scope: "commit", "branch", or path to plan file)
 
-To do this, follow these steps precisely:
+## 1. Determine Scope
 
-1. Launch a haiku agent to determine the diff scope and check preconditions:
-   - If scope is "branch": Find the merge-base with main/dev branch and verify there are changes to review
-   - If scope is "commit" or unspecified: Check for uncommitted changes, fall back to last commit if none
-   - Return early if there are no changes to review or changes are trivial (e.g., only whitespace, only comments)
+Use haiku agent to detect what to review:
 
-2. Launch a haiku agent to return a list of file paths (not their contents) for all relevant instruction files:
+1. **Conversation changes**: If implementation just completed, review those files
+2. **Uncommitted changes**: `git diff HEAD`
+3. **Last commit**: `git diff HEAD~1`
+4. **Branch**: `git diff $(git merge-base HEAD main)..HEAD`
 
-   **CLAUDE.md files:**
-   - The root CLAUDE.md file, if it exists
-   - Any CLAUDE.md files in directories containing modified files
+**If ambiguous**: Ask user to clarify.
+**If extensive/unclear**: Use Explore agent first for high-level understanding.
 
-   **Rules files (.claude/rules/*.md):**
-   - All rules files in `.claude/rules/` (recursively)
-   - For each rule file, note the `paths` frontmatter field if present (glob pattern that scopes the rule to specific files)
-   - Rules without a `paths` field apply to all files
-   - Rules with a `paths` field only apply to files matching that glob pattern
+## 2. Gather Context
 
-3. Launch a sonnet agent to view the diff and return a summary of the changes
+Explore agent collects:
+- CLAUDE.md files in affected directories
+- Applicable `.claude/rules/*.md` (check `paths` frontmatter)
+- If plan path provided: Read plan for compliance checking
 
-4. Launch 7 agents in parallel to independently review the changes. Each agent should return the list of issues, where each issue includes a description and the reason it was flagged (e.g. "CLAUDE.md adherence", "bug", "code smell"). The agents should do the following:
+## 3. Review Concerns
 
-   **Agents 1 + 2: Instruction compliance sonnet agents**
-   Audit changes for CLAUDE.md and rules compliance in parallel. Note: When evaluating compliance for a file:
-   - Only consider CLAUDE.md files that share a file path with the file or parents
-   - Only consider rules files where the file matches the rule's `paths` glob pattern (or the rule has no `paths` field)
+All reviews must cover these concerns:
 
-   **Agents 3 + 4: Bug detection opus agents**
-   Agent 3: Scan for obvious bugs. Focus only on the diff itself without reading extra context. Flag only significant bugs; ignore nitpicks and likely false positives. Do not flag issues that you cannot validate without looking at context outside of the git diff.
-   Agent 4: Look for problems that exist in the introduced code. This could be security issues, incorrect logic, etc. Only look for issues that fall within the changed code.
+| Concern | Focus |
+|---------|-------|
+| **Edge Cases** | Null/empty/boundary handling, missing conditional branches |
+| **Dead Code/Bloat** | Unused code, duplication, redundant logic |
+| **Error Paths** | Useless fallbacks? Right exceptions? Missing error handling? |
+| **Compliance** | CLAUDE.md/rules adherence, or plan adherence if provided |
+| **Logic Bugs** (opus) | Incorrect logic, wrong conditions, off-by-one, state bugs |
+| **Security** (opus) | Injection, XSS, auth issues, data exposure |
+| **Code Smells** | Anti-patterns, complexity, poor separation |
+| **Pattern Consistency** | Naming, architecture, conventions vs codebase |
+| **Idiomatic Code** | Language idioms, modern patterns, best practices |
 
-   **Agent 5: Code smells sonnet agent**
-   Look for anti-patterns, unnecessary complexity, or maintainability concerns in the changed code. Focus on:
-   - Overly complex logic that could be simplified
-   - Code duplication introduced by the changes
-   - Poor separation of concerns
-   - Hard-coded values that should be configurable
+## 4. Scale & Allocate Agents
 
-   **Agent 6: Pattern consistency sonnet agent**
-   Analyze whether the changes follow established codebase patterns. This agent should read surrounding code to understand existing patterns, then verify the new code follows them. Look for:
-   - Naming conventions used elsewhere in the codebase
-   - Architectural patterns (e.g., how similar features are structured)
-   - Error handling patterns
-   - Import/export conventions
+Choose strategy based on change size and structure:
 
-   **Agent 7: Best practices sonnet agent**
-   Check for violations of language idioms, security concerns, or performance issues:
-   - Language-specific best practices and idioms
-   - Obvious security vulnerabilities (injection, XSS, etc.)
-   - Performance anti-patterns (N+1 queries, unnecessary re-renders, etc.)
-   - Missing error handling at system boundaries
+**Small changes (<10 files, single domain):**
+- 3-4 agents, each covering multiple concerns
+- Example: Agent 1 (compliance + patterns), Agent 2 (bugs + security, opus), Agent 3 (smells + edge cases + errors)
 
-   **CRITICAL: We only want HIGH SIGNAL issues.** This means:
-   - Objective bugs that will cause incorrect behavior at runtime
-   - Clear, unambiguous CLAUDE.md or rules violations where you can quote the exact rule being broken
-   - Obvious code smells that significantly impact maintainability
-   - Clear pattern violations where you can point to the established pattern being broken
-   - Concrete best practice violations with demonstrable impact
+**Medium changes (10-25 files, mixed domains):**
+- 6-8 agents
+- Split by concern OR by vertical slice
+- Bug detection and security always get dedicated opus agents
+- Example: 2 opus (bugs, security), 4 sonnet (compliance, patterns, smells, edge-cases+errors+bloat)
 
-   We do NOT want:
-   - Subjective concerns or "suggestions"
-   - Style preferences not explicitly required by CLAUDE.md or rules
-   - Potential issues that "might" be problems
-   - Anything requiring interpretation or judgment calls
-   - Minor code smells that are debatable
+**Large changes (>25 files, multiple features):**
+- 8-12 agents
+- Prefer vertical slices: each agent reviews all concerns for one feature/module
+- PLUS dedicated opus agents for bugs and security across everything
+- Don't overload any single agent—split file sets if needed
 
-   If you are not certain an issue is real, do not flag it. False positives erode trust and waste reviewer time.
+**Guiding principles:**
+- Bug detection agents: max 10-15 files each
+- Vertical slice agents: max 8-10 files each
+- Concern-focused agents: can handle more files but fewer concerns
+- Use opus for logic bugs and security; sonnet for everything else
 
-5. For each issue found in the previous step, launch parallel subagents to validate the issue. These subagents should get a description of the issue. The agent's job is to review the issue to validate that the stated issue is truly an issue with high confidence.
+## 5. Validate Issues
 
-   Validation approach by issue type:
-   - **Bugs**: Opus subagent verifies the bug is real (e.g., "variable is not defined" - check if actually undefined)
-   - **Instruction violations**: Sonnet subagent validates the rule is scoped for this file (CLAUDE.md in path hierarchy, or rules file with matching `paths` glob) and is actually violated
-   - **Code smells**: Sonnet subagent confirms the smell is significant and not a false positive
-   - **Pattern violations**: Sonnet subagent verifies the established pattern exists and is actually being violated
-   - **Best practice violations**: Sonnet subagent confirms the violation has real impact
+Validation strategy:
+- ~1 validation agent per 3 issues found
+- Cluster issues by functionality/files to avoid re-reading same code
+- Each validator focuses on one cluster
 
-6. Filter out any issues that were not validated in step 5. This step will give us our list of high signal issues for our review.
+Validation by type:
+- **Bugs/Security**: Opus verifies issue is real and exploitable/broken
+- **Compliance**: Sonnet confirms rule applies and is actually violated
+- **Smells/Patterns/Idioms**: Sonnet confirms significance (not subjective nitpick)
+- **Edge Cases/Errors**: Sonnet verifies the path is actually reachable and unhandled
 
-7. Finally, output the code review results to the terminal.
-   When writing your output, follow these guidelines:
-   a. Keep your output brief
-   b. Avoid emojis
-   c. Reference relevant code, files, and line numbers for each issue
-   d. For each issue type, use the appropriate citation format:
-      - Instruction violations: Quote the exact text (e.g., CLAUDE.md says: "..." or .claude/rules/api.md says: "...")
-      - Bugs: Explain the bug concisely (e.g., bug: variable `foo` is used before initialization)
-      - Code smells: Name the smell (e.g., code smell: deeply nested conditionals reduce readability)
-      - Pattern violations: Reference the pattern (e.g., pattern violation: other handlers use `try/catch`, this one doesn't)
-      - Best practices: Name the violation (e.g., best practice: SQL query is vulnerable to injection)
+## 6. Output
 
-Use this list when evaluating issues in Steps 4 and 5 (these are false positives, do NOT flag):
+```
+## Code Review (scope: <type>, <N> files)
 
-- Pre-existing issues (code that existed before the current changes)
-- Something that appears to be a bug but is actually correct
-- Pedantic nitpicks that a senior engineer would not flag
-- Issues that a linter will catch (do not run the linter to verify)
-- General code quality concerns (e.g., lack of test coverage, general security issues) unless explicitly required in CLAUDE.md or rules
-- Issues mentioned in CLAUDE.md or rules but explicitly silenced in the code (e.g., via a lint ignore comment)
+### High Signal (blocking)
+<must fix — bugs, security, clear compliance violations>
 
-Notes:
+### Medium Signal (recommended)
+<should fix — smells, pattern violations, missing error handling>
 
-- For "commit" scope: Use `git diff HEAD` for uncommitted changes, or `git diff HEAD~1` for last commit if no uncommitted changes
-- For "branch" scope: Use `git merge-base HEAD main` (or dev) to find divergence point, then `git diff <merge-base>..HEAD`
-- Create a todo list before starting
-- You must cite and reference each issue with file path and line number
-- For your final output, follow the following format precisely (assuming for this example that you found 3 issues):
+### Low Signal (optional)
+<consider — idioms, minor inconsistencies>
 
 ---
+Found X issues: Y high, Z medium, W low.
+Run `/devcore:delegate-fixes` to address.
+```
 
-## Code Review (scope: <commit|branch>)
+Format per issue:
+- Brief description + concern type
+- File:line reference
+- For compliance: quote exact rule
 
-Found 5 issues:
+## False Positive Exclusions
 
-1. <brief description of issue> (CLAUDE.md says: "<exact quote>")
-   - File: `path/to/file.ts:42-45`
-
-2. <brief description of issue> (.claude/rules/api.md says: "<exact quote>")
-   - File: `path/to/other/file.ts:17`
-
-3. <brief description of bug> (bug: <explanation>)
-   - File: `path/to/another/file.ts:88-92`
-
-4. <brief description> (code smell: <explanation>)
-   - File: `path/to/file.ts:100-115`
-
-5. <brief description> (pattern violation: <established pattern> vs <what was done>)
-   - File: `path/to/file.ts:50-55`
-
----
-
-- Or, if you found no issues:
-
----
-
-## Code Review (scope: <commit|branch>)
-
-No issues found. Checked for bugs, instruction compliance, code smells, pattern consistency, and best practices.
-
----
+Do NOT flag:
+- Pre-existing issues (not introduced by these changes)
+- Linter-catchable issues
+- Subjective style preferences
+- Silenced violations (ignore comments)
+- Speculative "might be" problems
+- Dead code that's actually used (verify before flagging)
