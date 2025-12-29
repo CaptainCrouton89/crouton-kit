@@ -40,7 +40,7 @@ Execute the implementation plan by delegating work to agents. Maximize paralleli
 
 **Agent prompts should include:**
 - The specific task from the plan
-- Relevant context document paths (from `.claude/context/`)
+- Relevant context document paths (from `.claude/context/`, etc)
 - Any constraints or patterns to follow
 - Clear success criteria
 
@@ -59,12 +59,12 @@ Note: agents should usually not run tests or try to validate changes—other age
 
 When all tasks in the current phase are complete:
 
-State: "Phase {N} implementation complete. Ready for review (`/rpi/review`) or continue to next phase."
+State: "Phase {N} implementation complete. Ready for code review or continue to next phase."
 
 **Do not** automatically proceed to the next phase—allow the user to review first.
 
 ## Notes
 
-- For large plans, expect to run `/rpi/implement` multiple times (once per phase)
-- Code review happens separately via `/rpi/review`
+- For large plans, expect to run `/rpi:implement` multiple times (once per phase). Don't run it yourself—just do the first sub-plan, and tell the user to clear chat and run `/rpi:implement` again.
 - Keep the user informed of progress, especially for long-running implementations
+- The priority is excellent code. Completion of all work should never come at the cost of cut corners.

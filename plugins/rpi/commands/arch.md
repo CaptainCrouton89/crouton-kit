@@ -108,4 +108,4 @@ Documents should be:
 
 List context documents created with brief summaries.
 
-State: "Spec and context complete. Ready for `/rpi/plan {spec-path}`."
+State: "Spec and context complete. Ready for `/rpi:plan {spec-path}`."
