@@ -9,22 +9,29 @@ Review code changes. Scale depth and strategy based on change size.
 
 ## 1. Determine Scope
 
-Use haiku agent to detect what to review:
+Infer what to review from context (priority order):
 
-1. **Conversation changes**: If implementation just completed, review those files
-2. **Uncommitted changes**: `git diff HEAD`
-3. **Last commit**: `git diff HEAD~1`
-4. **Branch**: `git diff $(git merge-base HEAD main)..HEAD`
+1. **Conversation changes** (default): Files modified this session
+2. **Uncommitted changes**: Staged + unstaged if no conversation history
+3. **Branch changes**: Commits since diverging from main (feature branches)
+4. **Last commit**: HEAD changes (fallback)
 
-**If ambiguous**: Ask user to clarify.
-**If extensive/unclear**: Use Explore agent first for high-level understanding.
+**Inference rules:**
+- Conversation history + changed files → review conversation changes
+- Feature branch + commits ahead of main → review branch
+- Uncommitted changes only → review those
+- If multiple signals conflict, spawn haiku agent to analyze git state and recommend scope
+
+**Ask user only when truly ambiguous** (e.g., dev branch, no conversation history, uncommitted changes could go either way).
 
 ## 2. Gather Context
 
 Explore agent collects:
 - CLAUDE.md files in affected directories
 - Applicable `.claude/rules/*.md` (check `paths` frontmatter)
-- If plan path provided: Read plan for compliance checking
+- Relevant plan file
+
+This agent should return all the instructions, rules, and guidelines relevant to the reviewed code.
 
 ## 3. Review Concerns
 
@@ -67,6 +74,11 @@ Choose strategy based on change size and structure:
 - Vertical slice agents: max 8-10 files each
 - Concern-focused agents: can handle more files but fewer concerns
 - Use opus for logic bugs and security; sonnet for everything else
+
+**Agent output expectations:**
+- **Terse for clean code**: If a concern area looks good, one line max ("Edge cases: adequately handled")
+- **Detail only for issues**: Full explanation, file:line, evidence only when flagging problems
+- Don't explain why correct code is correct—only explain what's wrong and why
 
 ## 5. Validate Issues
 
