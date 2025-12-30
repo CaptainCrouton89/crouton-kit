@@ -1,0 +1,8 @@
+{
+  "name": "hookify",
+  "version": "1.0.0",
+  "description": "Create configurable hooks from markdown rule files",
+  "author": {
+    "name": "Silas Rhyneer"
+  }
+}
