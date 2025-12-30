@@ -63,6 +63,13 @@
       "description": "Web development tools including frontend design workflows",
       "version": "1.0.0",
       "keywords": ["web", "frontend", "design"]
+    },
+    {
+      "name": "hookify",
+      "source": "./plugins/hookify",
+      "description": "Create configurable hooks from markdown rule files",
+      "version": "1.0.0",
+      "keywords": ["hooks", "rules", "automation"]
     }
   ]
 }
