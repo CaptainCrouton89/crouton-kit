@@ -25,7 +25,11 @@ These hooks read configuration files from `.claude/hookify.*.local.md` and check
 
 ### 2. Configuration Files
 
-Users create rules in `.claude/hookify.{rule-name}.local.md` files:
+Rules can be placed in **two locations**:
+- `~/.claude/hookify.*.local.md` - **Global rules** (apply to all projects)
+- `.claude/hookify.*.local.md` - **Project rules** (apply to current project only)
+
+Example rule file:
 
 ```markdown
 ---
@@ -160,7 +164,7 @@ When this rule triggers, the `!​`linear issue list --limit 10`` will be replac
 
 **Block or Warn**: Rules can either `block` operations (prevent execution) or `warn` (show message but allow). Set `action: block` or `action: warn` in the rule's frontmatter.
 
-**Rule Files**: Keep rules in `.claude/hookify.*.local.md` - they should be git-ignored (add to .gitignore if needed).
+**Rule Files**: Rules can be global (`~/.claude/`) or project-local (`.claude/`). Project rules should be git-ignored (add `.claude/*.local.md` to .gitignore).
 
 **Disable Rules**: Set `enabled: false` in frontmatter or delete the file.
 

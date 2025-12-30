@@ -11,8 +11,13 @@ Show all configured hookify rules in the project.
 
 ## Steps
 
-1. Use Glob tool to find all hookify rule files:
+1. Use Glob tool to find all hookify rule files in **both** locations:
    ```
+   # Global rules (apply to all projects)
+   path: ~/.claude
+   pattern: "hookify.*.local.md"
+
+   # Project rules (apply to current project only)
    pattern: ".claude/hookify.*.local.md"
    ```
 

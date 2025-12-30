@@ -62,6 +62,22 @@ Declarative constraints here.
 ```
 Omit `paths` for rules that apply everywhere.
 
+## Creating a New Plugin
+
+**IMPORTANT**: After creating a plugin directory, you MUST register it in `/.claude-plugin/marketplace.json`:
+
+```json
+{
+  "name": "my-plugin",
+  "source": "./plugins/my-plugin",
+  "description": "What it does",
+  "version": "1.0.0",
+  "keywords": ["relevant", "keywords"]
+}
+```
+
+Without this registration, the plugin won't be discovered by Claude Code even if the files exist.
+
 ## Key Plugins
 
 | Plugin | Purpose |

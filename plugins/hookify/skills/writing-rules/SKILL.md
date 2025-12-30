@@ -282,9 +282,12 @@ Better: `rm\s+-rf`
 
 ## File Organization
 
-**Location:** All rules in `.claude/` directory
-**Naming:** `.claude/hookify.{descriptive-name}.local.md`
-**Gitignore:** Add `.claude/*.local.md` to `.gitignore`
+**Locations:** Rules can be in two places:
+- `~/.claude/hookify.*.local.md` - **Global rules** (apply to all projects)
+- `.claude/hookify.*.local.md` - **Project rules** (apply to current project only)
+
+**Naming:** `hookify.{descriptive-name}.local.md`
+**Gitignore:** Add `.claude/*.local.md` to project `.gitignore`
 
 **Good names:**
 - `hookify.dangerous-rm.local.md`

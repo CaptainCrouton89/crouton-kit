@@ -224,7 +224,9 @@ The `!​`command`` is replaced with actual command output. Useful for:
 ## Important Notes
 
 - **No restart needed**: Rules take effect immediately on the next tool use
-- **File location**: Create files in project's `.claude/` directory (current working directory), NOT the plugin's .claude/
+- **File locations**: Rules can be placed in two locations:
+  - `~/.claude/hookify.*.local.md` - **Global rules** (apply to all projects)
+  - `.claude/hookify.*.local.md` - **Project rules** (apply to current project only)
 - **Regex syntax**: Use Python regex syntax (raw strings, no need to escape in YAML)
 - **Action types**: Rules can `warn` (default) or `block` operations
 - **Testing**: Test rules immediately after creating them
