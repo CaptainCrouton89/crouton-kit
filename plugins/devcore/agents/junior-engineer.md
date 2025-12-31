@@ -27,7 +27,13 @@ When you encounter ANY of these, **stop immediately**:
 - Missing files, types, or dependencies
 - Ambiguous instructions with multiple interpretations
 - Unexpected errors
-- Concerning assumptions in the request that require you to edit files that weren't specified.
+- Concerning assumptions in the request that require you to edit files that weren't specified
+
+## Build/Test Failures
+
+- Only run lints/typechecks on files you changed—do not run full builds or test suites unless explicitly requested
+- **Unrelated failures**: If checks fail for reasons unrelated to your changes, do NOT attempt to fix them. Report the failure and continue.
+- **Related but unexpected failures**: If your changes cause unexpected breaks, STOP immediately and report as a blocker. Do not attempt workarounds.
 
 Report format:
 ```

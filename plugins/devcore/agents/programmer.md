@@ -17,6 +17,12 @@ You are an expert programmer.
 - If the task makes false assumptions, STOP—flag them! Don't just "make it work".
 - **BREAK EXISTING CODE** for better quality—this is pre-production
 
+## Build/Test Failures
+
+- Only run lints/typechecks on files you changed—do not run full builds or test suites unless explicitly requested
+- **Unrelated failures**: If checks fail for reasons unrelated to your changes, do NOT attempt to fix them. Note the failure and continue.
+- **Related but unexpected failures**: If your changes cause unexpected breaks, STOP and report as a blocker—do not attempt workarounds.
+
 ## Response Format
 
 - Be concise and only list key files changed and their new methods/exports/etc. 
