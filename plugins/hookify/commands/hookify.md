@@ -6,6 +6,8 @@ allowed-tools: ["Read", "Write", "AskUserQuestion", "Task", "Grep", "TodoWrite",
 
 # Hookify - Create Hooks from Unwanted Behaviors
 
+cwd: !`cwd`
+
 **FIRST: Load the hookify:writing-rules skill** using the Skill tool to understand rule file format and syntax.
 
 Create hook rules to prevent problematic behaviors by analyzing the conversation or from explicit user instructions.

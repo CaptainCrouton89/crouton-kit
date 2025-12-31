@@ -2,9 +2,9 @@
 """
 Hookify rule loader and evaluator.
 
-Loads rules from:
-1. ~/.claude/hookify.*.local.md (global rules)
-2. .claude/hookify.*.local.md (project rules, relative to CWD)
+Loads rules from .claude/hookify.*.local.md in:
+1. CWD and all parent directories (up to home)
+2. ~/.claude/ (global rules)
 """
 
 import os
@@ -218,14 +218,40 @@ def parse_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
     return frontmatter, message
 
 
+def get_ancestor_dirs(start_dir: str) -> List[str]:
+    """Get all ancestor directories from start_dir up to root."""
+    dirs = []
+    current = os.path.abspath(start_dir)
+    home = os.path.expanduser('~')
+
+    while True:
+        dirs.append(current)
+        parent = os.path.dirname(current)
+        if parent == current:  # Reached root
+            break
+        # Stop at home directory (don't go above it)
+        if current == home:
+            break
+        current = parent
+
+    return dirs
+
+
 def load_rules(event: Optional[str] = None) -> List[Rule]:
-    """Load rules from global ~/.claude/ and project .claude/ directories."""
+    """Load rules from .claude/ directories walking up from CWD, plus global ~/.claude/."""
     rules = []
 
-    search_paths = [
-        os.path.join(os.path.expanduser('~'), '.claude', 'hookify.*.local.md'),
-        os.path.join('.claude', 'hookify.*.local.md'),
-    ]
+    # Build search paths: walk up from CWD, then global
+    search_paths = []
+
+    # Add ancestor directories (CWD and parents)
+    for ancestor in get_ancestor_dirs(os.getcwd()):
+        search_paths.append(os.path.join(ancestor, '.claude', 'hookify.*.local.md'))
+
+    # Add global ~/.claude/ (may already be included if we're under home)
+    global_path = os.path.join(os.path.expanduser('~'), '.claude', 'hookify.*.local.md')
+    if global_path not in search_paths:
+        search_paths.append(global_path)
 
     seen_files = set()
     files = []
