@@ -11,9 +11,9 @@ Delegate fixes for issues identified in this conversation.
 
 ### 1. Categorize by Complexity
 
-- **Obvious**: One clear fix. Single file or mechanical change across files.
-- **Likely**: Tradeoffs exist but one approach recommended. Straightforward once decided.
-- **Complex**: Tradeoffs AND complicated solution. Design decisions or architectural impact.
+- **Obvious** — One clear fix. Single file or mechanical change across files.
+- **Likely** — Tradeoffs exist but one approach recommended. Straightforward once decided.
+- **Complex** — Tradeoffs AND complicated solution. Design decisions or architectural impact.
 
 ### 2. Propose Plan
 

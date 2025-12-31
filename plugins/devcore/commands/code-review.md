@@ -37,17 +37,15 @@ This agent should return all the instructions, rules, and guidelines relevant to
 
 All reviews must cover these concerns:
 
-| Concern | Focus |
-|---------|-------|
-| **Edge Cases** | Null/empty/boundary handling, missing conditional branches |
-| **Dead Code/Bloat** | Unused code, duplication, redundant logic |
-| **Error Paths** | Useless fallbacks? Right exceptions? Missing error handling? |
-| **Compliance** | CLAUDE.md/rules adherence, or plan adherence if provided |
-| **Logic Bugs** (opus) | Incorrect logic, wrong conditions, off-by-one, state bugs |
-| **Security** (opus) | Injection, XSS, auth issues, data exposure |
-| **Code Smells** | Anti-patterns, complexity, poor separation |
-| **Pattern Consistency** | Naming, architecture, conventions vs codebase |
-| **Idiomatic Code** | Language idioms, modern patterns, best practices |
+- **Edge Cases** — Null/empty/boundary handling, missing conditional branches
+- **Dead Code/Bloat** — Unused code, duplication, redundant logic
+- **Error Paths** — Useless fallbacks? Right exceptions? Missing error handling?
+- **Compliance** — CLAUDE.md/rules adherence, or plan adherence if provided
+- **Logic Bugs** (opus) — Incorrect logic, wrong conditions, off-by-one, state bugs
+- **Security** (opus) — Injection, XSS, auth issues, data exposure
+- **Code Smells** — Anti-patterns, complexity, poor separation
+- **Pattern Consistency** — Naming, architecture, conventions vs codebase
+- **Idiomatic Code** — Language idioms, modern patterns, best practices
 
 ## 4. Scale & Allocate Agents
 
@@ -99,23 +97,29 @@ Validation by type:
 ## Code Review (scope: <type>, <N> files)
 
 ### High Signal (blocking)
-<must fix — bugs, security, clear compliance violations>
+
+- **Unvalidated user input in SQL query** [Security]
+  `src/db/queries.ts:142` — User-provided `sortBy` interpolated directly into query string.
+
+- **Race condition in cache invalidation** [Logic Bug]
+  `src/cache/manager.ts:89` — Cache read and write not atomic; stale data possible under concurrent requests.
 
 ### Medium Signal (recommended)
-<should fix — smells, pattern violations, missing error handling>
+
+- **Catch block swallows error context** [Error Paths]
+  `src/api/handlers.ts:67` — Logs generic message, discards stack trace. Rethrow or log full error.
 
 ### Low Signal (optional)
-<consider — idioms, minor inconsistencies>
+
+- **Inconsistent naming: `getUserData` vs `fetchUserProfile`** [Pattern Consistency]
+  `src/services/user.ts:23` — Other data fetchers use `fetch*` prefix.
 
 ---
-Found X issues: Y high, Z medium, W low.
+Found 4 issues: 2 high, 1 medium, 1 low.
 Run `/devcore:delegate-fixes` to address.
 ```
 
-Format per issue:
-- Brief description + concern type
-- File:line reference
-- For compliance: quote exact rule
+Issue format: `**description** [Concern]` on first line, `file:line` + context on second.
 
 ## False Positive Exclusions
 

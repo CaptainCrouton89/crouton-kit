@@ -68,6 +68,7 @@ Create a comprehensive, actionable implementation plan based on the feature spec
 - **Pseudocode when helpful** - For complex algorithms or non-obvious logic
 - **No code smells** - Avoid fallbacks, magic values, or shortcuts
 - **No timelines** - Focus on what, not when
+- **No conditionals or uncertainty** - Plans must be fully resolved. No "if X, then Y" branches, no "investigate whether..." steps, no deferred decisions. Resolve all ambiguity during planning, not during execution.
 
 ### Quality Standards
 - Follow existing patterns and conventions from context

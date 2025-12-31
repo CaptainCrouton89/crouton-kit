@@ -54,12 +54,12 @@ When the feature is well-defined, save to `{cwd}/.claude/specs/{topic-name}.spec
 
 **Spec format:**
 - **Summary** — One paragraph describing the feature
-- **Behavior** — How it works in plain English (normal operation, edge cases, user feedback)
+- **Behavior** — External behavior: input/output mappings, preconditions/postconditions, invariants, state transitions, data shapes. Cover what's non-obvious; skip what's self-evident. Focus on decisions that would otherwise be left to implementer discretion.
 - **Architecture** (if applicable) — Key abstractions, component interactions, integration points
 - **Constraints** — Limitations, requirements, or boundaries
 - **Related files** — Paths to relevant existing code
 
-**No code.** No pseudocode. No type definitions. Abstract and behavioral only.
+**No code.** No pseudocode. No type definitions. Behavioral and contractual only.
 
 ---
 
