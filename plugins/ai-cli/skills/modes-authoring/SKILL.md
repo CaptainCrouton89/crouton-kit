@@ -2,6 +2,9 @@
 name: modes-authoring
 description: Guide to writing ai-cli mode files. Use when creating modes for non-interactive Claude Code sessions — preconfigured agent runs with locked-in system prompts, model selection, and prompt wrappers.
 user-invocable: false
+paths:
+  - "**/modes/**/*.md"
+  - "**/.ai/modes/**/*.md"
 ---
 
 # Writing ai-cli Modes
