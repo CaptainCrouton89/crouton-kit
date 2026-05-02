@@ -2,6 +2,9 @@
 name: skills-authoring
 description: Guide to writing SKILL.md files for Claude Code. Use when creating skills that provide on-demand reference, methodology, or workflow guidance.
 user-invocable: true
+paths:
+  - "**/SKILL.md"
+  - "**/skills/**/*.md"
 ---
 
 # Writing Skills

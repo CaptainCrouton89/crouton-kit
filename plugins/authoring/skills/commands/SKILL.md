@@ -2,6 +2,8 @@
 name: commands-authoring
 description: Guide to writing slash commands for Claude Code. Use when creating commands that set mode, constraints, or workflows invoked via /command-name.
 user-invocable: false
+paths:
+  - "**/commands/**/*.md"
 ---
 
 # Writing Slash Commands

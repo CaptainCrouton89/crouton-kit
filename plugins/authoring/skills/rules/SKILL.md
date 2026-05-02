@@ -2,6 +2,9 @@
 name: rules-authoring
 description: Guide to writing .claude/rules/*.md files — auto-applied constraints scoped by file patterns. Use when creating or updating rules for code conventions, quality standards, or file-specific guidance.
 user-invocable: false
+paths:
+  - ".claude/rules/**/*.md"
+  - "**/rules/**/*.md"
 ---
 
 # Writing Rules
