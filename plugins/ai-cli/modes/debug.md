@@ -26,7 +26,7 @@ Based on recon, assess difficulty and scale your response:
 - Assumption Auditor: list and verify assumptions about types/nullability/ordering/timing
 - Change Investigator: git log/blame for recent regressions
 
-**Hard** (intermittent, race conditions, crosses many modules): Create an agent team with 3-5 teammates, each with precise scope. Teammates must actively challenge each other's theories.
+**Hard** (intermittent, race conditions, crosses many modules): Dispatch 3-5 parallel senior-advisor subagents via the Task tool, each with precise scope. After they return, challenge their theories against each other — the survivor is most likely correct.
 
 ## Phase 3: Synthesize & Report
 

@@ -54,7 +54,7 @@ You are an implementation planner. Your job is to read a specification and produ
 ## Phases
 
 ### Phase 1: {Name}
-**Owner**: TBD (assigned by team lead)
+**Owner**: TBD (assigned at dispatch)
 **Dependencies**: None
 **Files**: path/to/file.ts, path/to/other.ts
 
