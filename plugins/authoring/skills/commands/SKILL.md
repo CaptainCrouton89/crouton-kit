@@ -33,7 +33,7 @@ Prompt content. Set role, constraints, then get out of the way.
 - ` ```! ` fenced block — multi-line bash execution
 - `@path/to/file.ts` — file reference (contents included inline)
 
-Inline bash (`` !`...` `` and ` ```! `) runs at **template expansion time** — it does not require `allowed-tools`. The `allowed-tools` field only governs tools the model can call at runtime.
+Inline bash (the `!`-prefixed backtick form and the ` ```! ` fence) runs at **template expansion time** — it does not require `allowed-tools`. The `allowed-tools` field only governs tools the model can call at runtime.
 
 ## Key Rules
 
@@ -66,7 +66,7 @@ Most commands should be **user-only** or **agent-only** — rarely both.
 | `context: fork` | Run in an isolated subagent context |
 | `agent` | Subagent type when `context: fork` is set (`Explore`, `Plan`, etc.) |
 | `hooks` | Command-scoped hooks (same format as `hooks.json`, nested in frontmatter) |
-| `shell` | `bash` (default) or `powershell` for `` !`...` `` execution |
+| `shell` | `bash` (default) or `powershell` for inline shell execution |
 
 ## Commands vs Skills
 

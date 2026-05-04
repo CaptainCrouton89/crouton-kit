@@ -52,7 +52,7 @@ The `description` field drives automatic discovery. Include keywords users would
 | `disable-model-invocation: true` | Prevent autonomous invocation (user-only) |
 | `paths` | Glob patterns — only activate when working with matching files |
 | `hooks` | Skill-scoped hooks (same format as `hooks.json`, nested in frontmatter) |
-| `shell` | `bash` (default) or `powershell` for `` !`...` `` execution |
+| `shell` | `bash` (default) or `powershell` for inline shell execution |
 
 ## Invocation Control
 
