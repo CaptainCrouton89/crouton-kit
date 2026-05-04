@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "crouton-kit",
-  "version": "1.44.3",
+  "version": "1.44.4",
   "owner": {
     "name": "Silas Rhyneer",
     "email": "silas@example.com"
@@ -111,7 +111,7 @@
       "name": "authoring",
       "source": "./plugins/authoring",
       "description": "Guides for authoring Claude Code artifacts — CLAUDE.md, hooks, rules, skills, commands, and scripts",
-      "version": "1.4.2",
+      "version": "1.4.3",
       "keywords": [
         "authoring",
         "guides",
