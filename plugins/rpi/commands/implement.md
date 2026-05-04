@@ -1,5 +1,5 @@
 ---
-description: After /rpi/plan - execute with agent team
+description: After /rpi/plan - execute with parallel subagents
 argument-hint: <plan-path or description>
 ---
 # Implement Plan
@@ -15,7 +15,7 @@ Extract the plan reference and any implementation guidance.
 
 ## Objective
 
-Execute the implementation plan using an agent team. Maximize parallelism while respecting dependencies. Teammates coordinate directly with each other.
+Execute the implementation plan using parallel `devcore:programmer` subagents dispatched via the Task tool. Maximize parallelism while respecting dependencies. Each subagent owns disjoint files.
 
 ## Process
 
@@ -25,76 +25,63 @@ Execute the implementation plan using an agent team. Maximize parallelism while 
 - If the plan references sub-plans (large multi-phase plans), **implement only the current phase**
 - Extract the task list, dependency graph, and integration points
 
-### 2. Assess Scale & Teammate Count
+### 2. Assess Scale & Subagent Count
 
 Count the plan's independent task groups (tasks with no mutual dependencies that can run in parallel).
 
 | Independent groups | Files touched | Strategy |
 |-------------------|---------------|----------|
-| 1-3               | 1-5           | Task subagents directly — no team overhead |
-| 2-4               | 5-15          | Agent team with **2 teammates** |
-| 4-8               | 10-30         | Agent team with **3 teammates** |
-| 8+                | 25+           | Agent team with **4 teammates** (cap) |
+| 1-3               | 1-5           | Implement directly or single subagent |
+| 2-4               | 5-15          | **2 parallel subagents** |
+| 4-8               | 10-30         | **3 parallel subagents** |
+| 8+                | 25+           | **4 parallel subagents** (cap) |
 
-Use the higher of the two columns to pick the tier. Never spawn more teammates than independent task groups.
+Use the higher of the two columns to pick the tier. Never spawn more subagents than independent task groups.
 
 **Scale-up signals** (bump one tier): shared interfaces requiring tight coordination, multiple languages/frameworks, or changes spanning both infrastructure and application layers.
 
-For small plans, delegate with Task tool using `devcore:teammate` and skip to Phase Completion.
+For small plans, dispatch a single `devcore:programmer` subagent (or implement directly) and skip to Phase Completion.
 
-### 3. Create Team and Task List
+### 3. Partition Tasks
 
-Create an agent team via `TeamCreate`. Then populate the shared task list:
+Group tasks into disjoint sets where:
+- Each group owns clear file boundaries (no two groups edit the same files)
+- Within a group, tasks can be done sequentially by one subagent
+- Across groups, dependencies are expressed as ordering layers (run dependent groups after their predecessors complete)
 
-- `TaskCreate` for each task from the plan
-- Set `addBlockedBy` to express dependencies between tasks
-- Include in each task description:
-  - The specific work from the plan
-  - Paths to relevant context documents (`.claude/context/`, spec, plan)
-  - File ownership boundaries (which files this task owns)
-  - Integration points with other tasks (shared types, interfaces, APIs)
-  - Constraint: do not run tests or typechecks—other teammates may be mid-edit
+If two tasks must edit the same file, sequence them in the same group.
 
-### 4. Spawn Teammates
+### 4. Dispatch Parallel Subagents
 
-Spawn teammates via the Task tool with `team_name` set:
+For each task group in the current dependency layer, dispatch a `devcore:programmer` subagent in parallel via the Task tool.
 
-**Delegation strategy:**
-- `devcore:teammate` (opus) — all teammates. They delegate internally to sonnet/haiku subagents for subtasks.
-
-**Teammate prompts should include:**
-- Their role and which tasks to claim from the shared task list
-- The plan path and relevant context paths
-- Instruction to use `TaskList` → `TaskUpdate` (claim) → implement → `TaskUpdate` (complete) → `TaskList` (next) loop
-- Instruction to message teammates directly when finishing work on a shared interface or discovering something that affects another task
-- Instruction to message you (the lead) if blocked
-
-**Teammate count:** Use the count from Assess Scale above.
+**Each subagent's prompt must include:**
+- The specific tasks from the plan it owns
+- The plan path and relevant context paths (`.claude/context/`, spec, plan)
+- File ownership boundaries (which files this subagent owns)
+- Integration points with other groups (shared types, interfaces, APIs — exact contracts)
+- Constraint: do not run tests or typechecks — other subagents may be mid-edit
+- Instruction to return when its tasks are complete, surfacing any issues encountered
 
 ### 5. Coordinate
 
-Stay in a coordination role—do not implement tasks yourself.
+Wait for all subagents in the current layer to return.
 
-- Respond to teammate messages (blockers, questions, integration issues)
-- When teammates report blockers, assess: resolve yourself, adjust the plan, or escalate to user
-- If a teammate finishes all their tasks and others remain unclaimed, direct them to pick up more
+- If any subagent reports a blocker, assess: resolve yourself, adjust the plan, or escalate to user
+- After a layer completes, dispatch the next layer of dependent groups
 - Surface progress to the user periodically
 
-### 6. Shutdown and Phase Completion
+Stay in a coordination role — do not implement tasks yourself unless a subagent returns blocked work.
 
-When all tasks in the shared task list are complete:
+### 6. Phase Completion
 
-1. Send `shutdown_request` to each teammate
-2. Wait for shutdown confirmations
-3. Clean up team with `TeamDelete`
+When all tasks in the plan's current phase are complete, state: "Phase {N} implementation complete. Ready for code review or continue to next phase."
 
-State: "Phase {N} implementation complete. Ready for code review or continue to next phase."
-
-**Do not** automatically proceed to the next phase—allow the user to review first.
+**Do not** automatically proceed to the next phase — allow the user to review first.
 
 ## Notes
 
-- For large plans, expect to run `/rpi:implement` multiple times (once per phase). Don't run it yourself—just do the first sub-plan, and tell the user to clear chat and run `/rpi:implement` again.
+- For large plans, expect to run `/rpi:implement` multiple times (once per phase). Don't run it yourself — just do the first sub-plan, and tell the user to clear chat and run `/rpi:implement` again.
 - Keep the user informed of progress, especially for long-running implementations
 - The priority is excellent code. Completion of all work should never come at the cost of cut corners.
-- **File conflicts:** Structure task ownership so teammates don't edit the same files. If unavoidable, sequence those tasks with `addBlockedBy`.
+- **File conflicts:** Structure task ownership so subagents don't edit the same files. If unavoidable, sequence those tasks into the same group.

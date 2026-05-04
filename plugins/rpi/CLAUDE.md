@@ -1,13 +1,13 @@
 # RPI Plugin
 
-Feature development workflow using agent teams. Full pipeline: requirements, design, plan, implement, validate, test.
+Feature development workflow. Full pipeline: requirements, design, plan, implement, validate, test.
 
 ## Usage
 
-**Full pipeline** (agent team): `/rpi:rpi <topic>`
+**Full pipeline**: `/rpi:rpi <topic>`
 **Individual phases** (standalone): `/rpi:problem`, `/rpi:requirements`, `/rpi:design`, `/rpi:plan`, `/rpi:implement`, `/rpi:validate`
 
-The standalone commands work independently for partial workflows. `/rpi:rpi` orchestrates the full pipeline as a team with specialized teammates.
+The standalone commands work independently for partial workflows. `/rpi:rpi` orchestrates the full pipeline by dispatching to specialized subagents via the Task tool.
 
 ## Architecture
 
@@ -15,63 +15,61 @@ The standalone commands work independently for partial workflows. `/rpi:rpi` orc
 
 ```
 Phase 1a: Requirements
-  Lead spawns rpi:requirements-writer teammate
-  User interacts directly with requirements-writer (Shift+Down)
-  Requirements-writer: investigate → propose → converse → save requirements → validate
+  Main session dispatches Task tool → rpi:requirements-writer
+  requirements-writer: investigate → propose → converse with user → save → validate
   Optional: fetch 3rd-party library docs, create context documents
   Output: .claude/specs/{topic}/requirements.md
 
 Phase 1b: Design
-  Lead spawns rpi:design-lead teammate
-  Design-lead: reads requirements → investigates codebase → proposes architecture → converse → save design → validate
+  Main session dispatches Task tool → rpi:design-lead
+  design-lead: reads requirements → investigates → proposes → converse → save → validate
   Output: .claude/specs/{topic}/design.md
 
 Phase 2: Planning
-  Lead spawns rpi:planning-lead teammate
-  Planning-lead works autonomously with Plan subagents
+  Main session dispatches Task tool → rpi:planning-lead
+  planning-lead works autonomously with Plan subagents
   Creates implementation plan + test plan, runs advisor review
   Output: .claude/plans/{topic}.plan.md, {topic}.tests.plan.md
 
 Phase 2.5: Validation Planning
-  Lead spawns rpi:validation-lead teammate (runs parallel with Phase 3)
+  Main session dispatches Task tool → rpi:validation-lead
   Inventories existing infrastructure, builds reusable tools
   Writes validation plan with per-phase exit criteria
   Output: .claude/plans/{topic}.validation.plan.md, scripts/commands
 
 Phase 3: Implementation (per phase)
-  Lead creates shared task list with dependencies
-  Spawns devcore:teammate agents (opus) — they delegate to sonnet/haiku subagents
-  Teammates claim tasks, implement, coordinate via messaging
+  Main session partitions tasks into disjoint groups
+  Dispatches parallel devcore:programmer subagents (one per group)
+  Each subagent owns its files, completes its tasks, returns
 
   Phase Review:
-    Lead spawns rpi:reviewer teammates (read-only)
-    Reviewers validate findings with their own subagents
-    User approves fixes → reviewers message implementers with instructions
-    Implementers apply fixes
+    Main session dispatches parallel rpi:reviewer subagents (read-only)
+    Reviewers validate findings with their own subagents and return reports
+    Main session presents consolidated findings to user
+    User approves fixes → main session dispatches devcore:programmer subagents to apply
 
   Phase Validation:
-    Lead messages validation-lead: "validate phase N"
-    Validation-lead runs proof scripts, reports pass/fail with evidence
-    Failures → implementers fix → re-validate until pass
+    Main session re-invokes rpi:validation-lead with "validate phase N"
+    validation-lead runs proof scripts, returns pass/fail with evidence
+    Failures → main session dispatches programmer subagent to fix → re-validate
 
 Phase 4: Testing
-  Dedicated devcore:teammate implements test plan
+  Main session dispatches devcore:programmer subagent to implement test plan
   Runs full test suite, fixes failures
-  Validation-lead runs full cross-phase validation as final smoke test
-  Team shutdown (including validation-lead)
+  Re-invokes rpi:validation-lead for full cross-phase validation as final smoke test
 ```
 
-### Agent Hierarchy
+### Agent Roster
 
-All teammates are opus. Cheaper models run as subagents within teammates, not as teammates themselves.
+All rpi agents are opus and dispatched via the Task tool. Cheaper models run as subagents within them.
 
 | Agent | Role | Model | Edits? |
 |-------|------|-------|--------|
 | `rpi:requirements-writer` | Collaborative requirements definition with user | opus | Yes (requirements, context) |
 | `rpi:design-lead` | Technical architecture design from requirements | opus | Yes (design, context) |
 | `rpi:planning-lead` | Creates implementation + test plans | opus | Yes (plans) |
-| `devcore:teammate` | Implementation, claims tasks from shared list | opus | Yes |
-| `rpi:reviewer` | Code review + quality audit, directs fixes | opus | No (read-only) |
+| `devcore:programmer` | Implementation | opus | Yes |
+| `rpi:reviewer` | Code review + quality audit, returns fix list | opus | No (read-only) |
 | `rpi:validation-lead` | Proof-of-life checks, reusable infrastructure | opus | Yes (scripts, commands, infrastructure) |
 
 ### Standalone Commands
@@ -82,11 +80,11 @@ All teammates are opus. Cheaper models run as subagents within teammates, not as
 | `/rpi:requirements` | Define requirements through conversation | Need requirements without full pipeline |
 | `/rpi:design` | Create technical design from requirements | Have requirements, want architecture decisions |
 | `/rpi:plan` | Create implementation plan from design | Have design, want to plan without full pipeline |
-| `/rpi:implement` | Execute plan with agent team | Have a plan, want to implement without review/test phases |
+| `/rpi:implement` | Execute plan with parallel subagents | Have a plan, want to implement without review/test phases |
 | `/rpi:validate` | Run validation for a topic or phase | Need to verify implementation against plan |
 | `/rpi:cleanup` | Clean up old spec/plan files | Housekeeping |
 
-Standalone commands don't create teams (except `/rpi:implement` for medium+ plans). They end with "clear chat and run the next command."
+Standalone commands end with "clear chat and run the next command."
 
 ### Validation Skills
 
@@ -119,11 +117,10 @@ The Stop hook in `hooks/` blocks session end if specs or plans were edited witho
 
 ## Key Design Decisions
 
-- **Teammates are opus, subagents are sonnet/haiku.** Teammates make judgment calls and coordinate. Subagents handle bounded, repetitive work.
+- **Pipeline agents are opus, their internal subagents are sonnet/haiku.** Pipeline agents make judgment calls; subagents handle bounded, repetitive work.
 - **Requirements and design are separate phases.** Requirements capture non-technical behavior (EARS format); design translates them into technical architecture. Keeping them separate prevents implementation details from contaminating behavioral intent.
-- **Reviewers are read-only.** They investigate and direct fixes through implementers, never edit code themselves.
+- **Reviewers are read-only.** They investigate and return fix lists; the main session dispatches implementers to apply fixes.
 - **Review happens per phase,** not just at the end. Catches issues before they compound in later phases.
-- **Implementation teammates stay alive through review** so reviewers can message them fix instructions directly.
 - **Test plan is separate.** Written during planning but implemented after all code passes review. Tests reference actual implementation, not just the plan.
 - **Validation creates lasting infrastructure, not throwaway scripts.** The validation-lead prioritizes reusable project tools (commands, shared scripts, debug endpoints) that future features benefit from. Topic-specific scripts supplement but don't replace shared infrastructure.
 - **Design-lead fetches library docs.** If the feature uses unfamiliar third-party libraries, docs are gathered upfront and shared through the pipeline.

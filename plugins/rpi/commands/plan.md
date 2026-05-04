@@ -74,14 +74,14 @@ Create a comprehensive, actionable implementation plan based on the feature requ
 - **No timelines** - Focus on what, not when
 - **No conditionals or uncertainty** - Plans must be fully resolved. No "if X, then Y" branches, no "investigate whether..." steps, no deferred decisions. Resolve all ambiguity during planning, not during execution.
 
-### Team-Ready Structure (medium+ plans)
+### Parallelization-Ready Structure (medium+ plans)
 
-For plans with 4+ tasks, structure the plan so `/rpi:implement` can delegate to an agent team:
+For plans with 4+ tasks, structure the plan so `/rpi:implement` can dispatch parallel subagents:
 
-- **File ownership** - Each task should own a clear set of files. Avoid tasks that edit the same files. If overlap is unavoidable, note it explicitly so the implementer can sequence those tasks.
+- **File ownership** - Each task should own a clear set of files. Avoid tasks that edit the same files. If overlap is unavoidable, note it explicitly so the orchestrator can sequence those tasks.
 - **Dependency graph** - State which tasks block which. Use "depends on: {task}" notation.
-- **Integration points** - Where tasks produce/consume shared types, interfaces, or APIs, call these out explicitly. Teammates need to know what contract to implement against and who to notify when it changes.
-- **Task granularity** - Each task should be a self-contained unit of work completable by one agent. Too coarse = can't parallelize. Too fine = coordination overhead.
+- **Integration points** - Where tasks produce/consume shared types, interfaces, or APIs, call these out explicitly. Each subagent needs to know what contract to implement against and which other tasks consume or produce it.
+- **Task granularity** - Each task should be a self-contained unit of work completable by one subagent. Too coarse = can't parallelize. Too fine = coordination overhead.
 
 ### Quality Standards
 - Follow existing patterns and conventions from context

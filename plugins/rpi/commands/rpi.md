@@ -1,5 +1,5 @@
 ---
-description: Full feature workflow - requirements, design, plan, implement via agent team
+description: Full feature workflow - requirements, design, plan, implement via parallel subagents
 argument-hint: <topic or description>
 disable-model-invocation: true
 ---
@@ -8,81 +8,73 @@ disable-model-invocation: true
 
 **Input:** $ARGUMENTS
 
-You are the team lead for a full feature development workflow: requirements, design, planning, implementation.
+You orchestrate a full feature development workflow: requirements, design, planning, implementation, review, validation, testing. Dispatch each phase via the Task tool and synthesize results.
 
 ## Phase 1a: Requirements
 
-1. `TeamCreate` a team (e.g., `rpi-{topic}`)
-2. Spawn an `rpi:requirements-writer` teammate with the topic/description from the input
-3. Tell the user: **"Requirements writer is ready. Switch to them (Shift+Down) to define your requirements. They'll notify me when it's done."**
-4. Wait for the requirements-writer's completion message containing the requirements path, pipeline state path, and scope assessment
+1. Dispatch `rpi:requirements-writer` via the Task tool with the topic/description from the input
+2. The agent investigates, drafts, converses with the user, saves, and validates
+3. Capture from its return: requirements path, pipeline state path, scope assessment
 
 ## Phase 1b: Design
 
-1. Send `shutdown_request` to the requirements-writer — it's done
-2. Spawn an `rpi:design-lead` teammate. Provide: requirements path, pipeline state path, scope assessment
-3. Tell the user: **"Design lead is ready. Switch to them (Shift+Down) to create the technical design. They'll notify me when it's done."**
-4. Wait for the design-lead's completion message containing the design path, context doc paths (if any), and updated scope assessment
-5. Send `shutdown_request` to the design-lead
+1. Dispatch `rpi:design-lead` via the Task tool. Provide: requirements path, pipeline state path, scope assessment
+2. The agent reads, investigates, proposes, converses with the user, saves, and validates
+3. Capture from its return: design path, context doc paths (if any), updated scope assessment
 
 ## Phase 2: Planning
 
-1. Spawn an `rpi:planning-lead` teammate. Provide: requirements path, design path, pipeline state path, context doc paths (if any), scope assessment
-2. The planning-lead works autonomously — creates plan, runs advisor review, validates
-3. Wait for its completion message containing the plan path and implementation structure
-4. Send `shutdown_request` to the planning-lead
+1. Dispatch `rpi:planning-lead` via the Task tool. Provide: requirements path, design path, pipeline state path, context doc paths (if any), scope assessment
+2. The agent works autonomously — creates plan, runs advisor review, validates
+3. Capture from its return: plan path, implementation structure, recommended subagent count
 
 ## Phase 2.5: Validation Planning
 
-1. Spawn an `rpi:validation-lead` teammate. Provide: requirements path, design path, plan path, context document paths
-2. The validation-lead works in parallel with Phase 3 implementation
-3. It inventories existing infrastructure, proposes reusable tools, writes the validation plan
-4. Wait for its readiness message before running the first phase validation
+1. Dispatch `rpi:validation-lead` via the Task tool. Provide: requirements path, design path, plan path, context document paths
+2. The agent inventories existing infrastructure, proposes reusable tools, writes the validation plan
+3. Capture from its return: validation plan path, infrastructure created/reused
 
 ## Phase 3: Implementation (repeat per phase)
 
-Read the plan and build the team:
+Read the plan and partition the work:
 
-1. `TaskCreate` for each implementation task in the current phase
-   - Set `addBlockedBy` per the plan's dependency graph
-   - Each task description: specific work, context paths, file ownership, integration points
-   - Constraint in every task: do not run tests or typechecks (other teammates may be mid-edit)
+1. Group the current phase's tasks into **disjoint task groups** — each group owns its files; no two groups edit the same files
+   - Use the dependency graph in the plan to enforce ordering between groups when needed
+   - Use the planning-lead's recommended subagent count: 2 for ≤4 groups, 3 for 5-8, 4 for 8+
 
-2. Spawn `devcore:teammate` teammates with `team_name`:
-   - Use the planning-lead's recommended teammate count from their completion message
-   - If no recommendation: count independent task groups — 2 for ≤4 groups, 3 for 5-8, 4 for 8+
-   - Teammates delegate internally to sonnet/haiku subagents for subtasks
+2. Dispatch parallel `devcore:programmer` subagents via the Task tool — one per group
+   - Each subagent's prompt includes: the specific tasks for its group, plan path, requirements path, design path, file ownership boundaries, integration points with other groups (shared types, interfaces, APIs with exact contracts), context doc paths
+   - Subagents implement and return when done
+   - Constraint in every prompt: do not run tests or typechecks (other subagents may be mid-edit)
 
-3. Each teammate's prompt: claim tasks from shared list via `TaskList` → `TaskUpdate` (claim) → implement → `TaskUpdate` (complete) → `TaskList` (next). Message teammates directly when finishing shared interfaces. Message lead if blocked.
+3. Wait for all subagents in the current dependency layer to complete before launching dependent groups
 
-4. Coordinate — respond to blockers, redirect idle teammates to unclaimed tasks, surface progress
-
-5. When all phase tasks complete, keep implementation teammates alive — they'll receive fix instructions from reviewers
+4. After all phase tasks complete, run Phase Review
 
 ### Phase Review (after each major implementation phase)
 
 Run review before proceeding to the next phase or to testing:
 
-1. Spawn `rpi:reviewer` teammates — scaled to phase change size:
+1. Dispatch parallel `rpi:reviewer` subagents via the Task tool — scaled to phase change size:
    - Small (<10 files): 1 reviewer covering all concern areas
    - Medium (10-25 files): 2 reviewers, split by concern area (e.g., correctness vs quality)
    - Large (>25 files): 3 reviewers, split by vertical slice or concern area
-   - Provide each: file list, plan path, requirements path, design path, assigned concerns, and **names of implementation teammates**
+   - Provide each: file list, plan path, requirements path, design path, assigned concerns
 
-2. Wait for review reports. Present consolidated findings to user:
+2. Each reviewer returns a structured findings report
+
+3. Synthesize and present consolidated findings to the user:
    - High signal: recommend fixing before continuing
    - Medium/low: user's call
 
-3. Tell reviewers which issues to address. Reviewers message the relevant implementation teammates directly with fix instructions.
-
-4. Implementation teammates apply fixes. When done, `shutdown_request` to all reviewers and implementation teammates.
+4. For approved fixes, dispatch `devcore:programmer` subagents to apply them. Group fixes by file ownership so subagents don't collide. Provide each: specific fix instructions per issue (what's wrong, where, what the fix should achieve — not exact code).
 
 ### Phase Validation (after review fixes, before next phase)
 
-1. Message the validation-lead: "validate phase N"
-2. The validation-lead runs proof scripts, reports pass/fail with evidence
-3. If failures: share evidence with implementation teammates, they fix
-4. Re-validate until all exit criteria pass
+1. Re-dispatch `rpi:validation-lead` with prompt "validate phase N"
+2. The agent runs proof scripts and returns pass/fail with evidence
+3. If failures: dispatch `devcore:programmer` subagent(s) with the failure evidence to fix
+4. Re-invoke validation until all exit criteria pass
 5. Only proceed to the next phase when validation passes
 
 If multi-phase plan and more phases remain, return to Phase 3 for the next phase. For very large plans, tell user to clear chat and re-run `/rpi:rpi` instead.
@@ -92,14 +84,12 @@ If multi-phase plan and more phases remain, return to Phase 3 for the next phase
 After all implementation phases pass review:
 
 1. Read the test plan (`.claude/plans/{topic}.tests.plan.md`) produced by the planning-lead
-2. `TaskCreate` for each test task from the test plan
-3. Spawn a dedicated `devcore:teammate` for test implementation
+2. Dispatch a `devcore:programmer` subagent with the test plan
    - Prompt: implement tests per the test plan, referencing the actual implementation (not just the plan). Tests should verify real behavior, not just exercise code paths.
-   - This teammate CAN run tests — it's the only one writing code at this point
-4. When tests are written, coordinate a final pass: run the full test suite, fix any failures
-5. Message the validation-lead: "run full cross-phase validation" — final smoke test across all phases
-6. If validation fails, fix and re-validate
-7. `shutdown_request` to test teammate and validation-lead, then `TeamDelete`
+   - This subagent CAN run tests — it's the only one writing code at this point
+3. After tests are written, dispatch a `devcore:programmer` subagent (or run yourself) to execute the full test suite and fix any failures
+4. Re-dispatch `rpi:validation-lead` with "run full cross-phase validation" — final smoke test across all phases
+5. If validation fails, fix and re-validate
 
 State: "Feature complete. Implementation reviewed, tests passing."
 
