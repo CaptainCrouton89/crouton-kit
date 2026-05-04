@@ -21,7 +21,7 @@ def main():
 
     # Read transcript to get the last assistant message
     try:
-        with open(transcript_path, "r") as f:
+        with open(transcript_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
     except (IOError, FileNotFoundError):
         sys.exit(0)
