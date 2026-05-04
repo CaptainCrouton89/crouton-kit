@@ -1,6 +1,6 @@
 {
   "name": "devcore",
-  "version": "1.13.5",
+  "version": "1.13.6",
   "description": "Core development agents and code quality hooks",
   "author": {
     "name": "Silas Rhyneer"
