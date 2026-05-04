@@ -82,7 +82,7 @@ Without this registration, the plugin won't be discovered by Claude Code even if
 
 | Plugin | Purpose |
 |--------|---------|
-| `devcore` | Core agents (programmer, teammate), code quality rules, code-review command |
+| `devcore` | Core agents (programmer, senior-advisor), code quality rules, code-review command |
 | `rpi` | Feature workflow: `/arch` → `/plan` → `/implement` → `/review` → `/fix` |
 | `git-smart` | Safe commit workflow with security scanning |
 | `debugging` | `/debug` and `/investigate-fix` commands |
