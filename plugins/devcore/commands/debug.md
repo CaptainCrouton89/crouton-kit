@@ -29,14 +29,14 @@ Spawn **2-3 parallel subagents** (`devcore:senior-advisor`), each with a *concre
 - **Change Investigator**: "Run `git log` and `git blame` on [these files]. Identify changes in the last N commits that touch the failure area. Flag regressions or behavioral changes."
 
 ### Hard (intermittent, race conditions, user says "nasty"/"impossible"/"been stuck", crosses many modules)
-Create an **agent team** with **3-5 teammates**. Each gets precise scope—not vague roles:
+Dispatch **3-5 parallel `devcore:senior-advisor` subagents** via the Task tool. Each gets precise scope—not vague roles:
 - **End-to-End Tracer**: Trace data from system entry to failure, documenting every transformation, boundary crossing, and state mutation
 - **Assumption Breaker**: Enumerate and systematically test every assumption—types, null, ordering, timing, env vars, config, dependency versions
 - **Git Archaeologist**: `git log`/`git blame`/`git bisect` the failure area. Correlate changes with when the bug was first reported. Check dependency updates.
 - **Boundary Inspector**: Focus exclusively on async boundaries, serialization/deserialization, external service calls, shared mutable state, and concurrency
 - **Reproducer** *(if applicable)*: Write a minimal failing test or reproduction script that isolates the bug
 
-Teammates must **actively challenge each other's theories**. When one posts a hypothesis, others should try to disprove it with evidence. The theory that survives is most likely correct.
+After all subagents return, **challenge their theories against each other**. When one posts a hypothesis, look for evidence in the others that disproves it. The theory that survives is most likely correct. If hypotheses conflict and evidence is thin, dispatch a follow-up subagent to test the most likely candidate.
 
 **Scale-up signals:**
 - User language: "nasty", "intermittent", "been stuck", "impossible", "no idea", "weird", "flaky"

@@ -1,10 +1,10 @@
 ---
-description: Code review, quality audit, and fix delegation with scaled agent teams
+description: Code review, quality audit, and fix delegation with parallel subagents
 argument-hint: [path] [review|audit|fix|full]
 disable-model-invocation: true
 ---
 
-Analyze and fix code using coordinated agent teams. Mode and effort scale to input.
+Analyze and fix code using parallel subagents dispatched via the Task tool. Mode and effort scale to input.
 
 ## Mode Detection
 
@@ -25,14 +25,14 @@ Explicit mode keyword always overrides inference.
 
 ## Phase 1: Context Gathering
 
-Runs before any analysis mode. Spawn one Explore teammate to collect:
+Runs before any analysis mode. Dispatch one Explore subagent via the Task tool to collect:
 
 - CLAUDE.md files and applicable `.claude/rules/*.md` from affected directories
 - Relevant plan files or design docs
 - **Review mode only**: PR description, linked tickets, commit messages
 - Codebase conventions: naming patterns, error handling style, architecture norms
 
-Share gathered context with all subsequent teammates via their spawn prompts.
+Share gathered context with all subsequent subagents via their dispatch prompts.
 
 ## Phase 2: Classification
 
@@ -46,7 +46,7 @@ Classify the target to determine review depth:
 | Test-only | **Intent-focused** | Are tests checking developer intent or AI assumptions? |
 | Documentation | **Minimal** | Low risk |
 
-Classification informs team scaling and which concerns get opus vs sonnet.
+Classification informs subagent scaling and which concerns get opus vs sonnet.
 
 ---
 
@@ -74,7 +74,9 @@ Infer from context (first match wins):
 | Compliance | sonnet | — | CLAUDE.md/rules/plan adherence |
 | Pattern Consistency | sonnet | — | Naming, architecture, conventions vs codebase |
 
-### Team Scaling
+### Subagent Scaling
+
+Dispatch subagents in parallel via the Task tool:
 
 | Change Size | Subagent tasks | Grouping |
 |-------------|----------------|----------|
@@ -84,7 +86,7 @@ Infer from context (first match wins):
 
 ### Validation Phase
 
-After review tasks complete, spawn validation tasks (~1 per 3 issues):
+After review subagents return, dispatch validation subagents (~1 per 3 issues):
 - **Bugs/Security** (opus): Confirm issue is real and exploitable/broken
 - **Everything else** (sonnet): Confirm significance — reject subjective nitpicks
 
@@ -125,7 +127,9 @@ Scan codebase or path for **structural issues** — code that works but shouldn'
 - Feature flags / backwards-compat shims with no migration plan
 - Redundant validation at internal boundaries (validate at edges, trust internals)
 
-### Team Scaling
+### Subagent Scaling
+
+Dispatch subagents in parallel via the Task tool:
 
 | Scope | Tasks | Assignment |
 |-------|-------|------------|
@@ -133,7 +137,7 @@ Scan codebase or path for **structural issues** — code that works but shouldn'
 | Small project (<10 dirs) | 3-5 sonnet | One per top-level dir |
 | Large project (10+ dirs) | 6-10 sonnet | One per vertical, plus 1 opus cross-cutting |
 
-Each teammate reports: `file:line`, issue, why it's wrong, severity (high/med/low).
+Each subagent reports: `file:line`, issue, why it's wrong, severity (high/med/low).
 
 ---
 
@@ -150,21 +154,21 @@ Delegate fixes for issues identified **in this conversation**. If no issues exis
 
 2. **Propose** — Present categorized list. Wait for approval.
 
-3. **Execute** — Create team and tasks:
+3. **Execute** — Dispatch fix subagents via the Task tool:
    - **Obvious**: haiku subagents in parallel
    - **Likely**: haiku subagents or `devcore:programmer` based on scope
-   - **Complex**: Offer `devcore:senior-advisor` for analysis first, then implementation teammates
+   - **Complex**: Offer `devcore:senior-advisor` for analysis first, then `devcore:programmer` for implementation
 
-4. **Skip team for <3 simple changes** — implement directly.
+4. **Skip subagents for <3 simple changes** — implement directly.
 
 ---
 
 ## Synthesis (Judge Layer)
 
-Before producing final output, synthesize all teammate findings:
+Before producing final output, synthesize all subagent findings:
 
-1. **Deduplicate** — Merge overlapping observations from different teammates
-2. **Resolve conflicts** — When teammates disagree, weigh tradeoffs and pick one position
+1. **Deduplicate** — Merge overlapping observations from different subagents
+2. **Resolve conflicts** — When subagents disagree, weigh tradeoffs and pick one position
 3. **Filter** — Remove low-confidence findings, subjective preferences, and false positives
 4. **Prioritize** — Rank by: severity × confidence × AI risk multiplier
 5. **Evidence check** — Every finding must cite `file:line` and concrete evidence
@@ -202,15 +206,12 @@ No "low signal" tier — if it's not worth acting on, don't report it.
 
 Fix mode outputs a completion summary per issue.
 
-## Team Lifecycle
+## Workflow
 
-1. Create team
-2. Spawn context-gathering teammate (Explore)
-3. Classify change type and depth
-4. Create tasks per scaling rules
-5. Spawn teammates, assign tasks
-6. Collect results; spawn validation tasks (review mode only)
-7. Synthesize: deduplicate, filter, prioritize
-8. Present consolidated output
-9. Shut down all teammates
-10. Delete team
+1. Dispatch context-gathering subagent (Explore)
+2. Classify change type and depth
+3. Partition work per scaling rules
+4. Dispatch parallel subagents via Task tool
+5. Collect results; dispatch validation subagents (review mode only)
+6. Synthesize: deduplicate, filter, prioritize
+7. Present consolidated output
