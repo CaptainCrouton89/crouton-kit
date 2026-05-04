@@ -83,21 +83,7 @@ Indexed args use shell-style quoting: `/migrate "hello world" second` → `$0` =
 
 ## Injecting Dynamic Context
 
-Shell commands run **before** the skill is sent to Claude — Claude sees the output, not the command:
-
-```markdown
----
-name: pr-summary
-description: Summarize a pull request
-allowed-tools: Bash(gh *)
----
-
-## PR context
-- Diff: !`gh pr diff`
-- Comments: !`gh pr view --comments`
-
-Summarize the above...
-```
+Shell commands run **before** the skill is sent to Claude — Claude sees the output, not the command. The syntax is a `!` immediately followed by a backtick-wrapped command (e.g. the bang-prefix form around `gh pr diff`). The literal pattern is intentionally not shown verbatim in this file because the preprocessor evaluates it on raw text **including inside fenced code blocks**, which would run the example at skill-load time.
 
 For multi-line commands, open a fenced code block whose opener is three backticks immediately followed by `!`, and close it with a normal triple-backtick fence. Each line inside runs as a separate shell command, and Claude sees the combined output.
 

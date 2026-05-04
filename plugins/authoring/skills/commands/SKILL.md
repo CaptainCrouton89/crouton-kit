@@ -29,7 +29,7 @@ Prompt content. Set role, constraints, then get out of the way.
 - `$ARGUMENTS` — all args as a single string
 - `$ARGUMENTS[N]` or `$N` — positional arg by 0-based index (`$0` is first)
 - `${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}` — runtime substitutions
-- `` !`git status` `` — inline bash execution (output included in context)
+- bang-prefixed backtick form (e.g. a `!` followed by a backtick-wrapped `git status`) — inline bash execution; output is included in context. Not shown verbatim because the preprocessor evaluates it on raw text inside any wrapping.
 - ` ```! ` fenced block — multi-line bash execution
 - `@path/to/file.ts` — file reference (contents included inline)
 
