@@ -18,7 +18,7 @@ The most important architectural decision: what goes where.
 **Behavior zone** (system prompt, agents, modes):
 - Identity, personality, tone
 - Constraints and hard rules
-- Tool usage policies
+- Tool usage policies (→ [tool-design](../tool-design/SKILL.md) covers designing the tools themselves)
 - Decision frameworks ("when X, do Y")
 - Formatting preferences
 
@@ -34,6 +34,8 @@ The most important architectural decision: what goes where.
 - Data that changes between sessions
 
 System prompt content gets treated as foundational identity. Task-zone content layers on top — it *redirects* the agent without replacing who it is. Knowledge gets treated as reference material. Mixing these up creates agents that treat their own rules as optional suggestions, or user-turn prompts that fight the system prompt for control of identity.
+
+→ For the orthogonal API-level question — what goes in the `system` message vs the `user` message of a single API call — see [system-vs-user-prompt](../system-vs-user-prompt/SKILL.md).
 
 ## XML for Instruction Domains
 
@@ -170,6 +172,8 @@ Repetition is a deliberate design tool, not sloppiness. In long prompts, a rule 
 
 **Heuristic:** If violating the rule would cause real harm or a terrible experience, repeat it. If it's stylistic, state it once.
 
+→ For how repetition interacts with token budgets, placement effects, and caching in long prompts, see [context-management](../context-management/SKILL.md).
+
 ## Decision Frameworks
 
 When the agent needs judgment calls, provide a framework — not an exhaustive rule list.
@@ -300,3 +304,23 @@ This is the pattern behind Claude Code skills — descriptions loaded upfront, f
 | Skills | Knowledge | No role — reference material | Progressive disclosure. Overview in SKILL.md, depth in reference files. |
 | CLAUDE.md | Knowledge | No role — project context | Guardrails and pointers. Constraints Claude would get wrong without. |
 | Rules | Behavior | No role — constraints only | Declarative constraints scoped by file pattern. |
+
+**Deeper guides for each component:**
+- Agents → [multi-agent-orchestration](../multi-agent-orchestration/SKILL.md) for designing systems of cooperating agents
+- Commands → [commands-authoring](../commands/SKILL.md)
+- Skills → [skills-authoring](../skills/SKILL.md)
+- CLAUDE.md → [claude-md-authoring](../claude-md/SKILL.md)
+- Rules → [rules-authoring](../rules/SKILL.md)
+- Hooks (lifecycle automation around prompts) → [hooks](../hooks/SKILL.md)
+
+## Related Skills
+
+Cross-cutting prompting topics with their own skills:
+
+- [system-vs-user-prompt](../system-vs-user-prompt/SKILL.md) — placement of instructions in `system` vs `user` messages at the API level
+- [tool-design](../tool-design/SKILL.md) — designing tool descriptions, parameter schemas, and error messages for function-calling agents
+- [structured-output](../structured-output/SKILL.md) — reliable typed JSON via constrained decoding, JSON Schema, Zod, Pydantic
+- [context-management](../context-management/SKILL.md) — token budgets, RAG, prompt caching, compression, multi-turn strategy
+- [output-variety](../output-variety/SKILL.md) — defeating sameyness in repeated LLM calls (personality lines, names, commentary)
+- [eval-and-quality-gates](../eval-and-quality-gates/SKILL.md) — measuring whether prompt changes actually help; LLM-as-judge, regression tests, guardrails
+- [sounding-human](../sounding-human/SKILL.md) — removing AI-tells from generated text
