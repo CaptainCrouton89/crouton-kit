@@ -1,5 +1,5 @@
 {
   "name": "authoring",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Guides for authoring Claude Code artifacts — CLAUDE.md files, hooks, rules, skills, commands, and scripts"
 }
