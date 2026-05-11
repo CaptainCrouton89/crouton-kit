@@ -29,11 +29,11 @@ Prompt content. Set role, constraints, then get out of the way.
 - `$ARGUMENTS` — all args as a single string
 - `$ARGUMENTS[N]` or `$N` — positional arg by 0-based index (`$0` is first)
 - `${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}` — runtime substitutions
-- bang-prefixed backtick form (e.g. a `!` followed by a backtick-wrapped `git status`) — inline bash execution; output is included in context. Not shown verbatim because the preprocessor evaluates it on raw text inside any wrapping.
-- ` ```! ` fenced block — multi-line bash execution
+- Inline bash: a `!` immediately followed by a backtick-wrapped command (e.g. the bang-prefix form around `git status`). Output is included in context. The literal pattern is intentionally not shown verbatim here because the preprocessor evaluates it on raw text **including inside fenced code blocks**, which would run the example at command-load time.
+- Multi-line bash: open a fenced code block whose opener is three backticks immediately followed by `!`, and close it with a normal triple-backtick fence. Each line runs as a separate shell command; Claude sees the combined output.
 - `@path/to/file.ts` — file reference (contents included inline)
 
-Inline bash (the `!`-prefixed backtick form and the ` ```! ` fence) runs at **template expansion time** — it does not require `allowed-tools`. The `allowed-tools` field only governs tools the model can call at runtime.
+Inline bash runs at **template expansion time** — it does not require `allowed-tools`. The `allowed-tools` field only governs tools the model can call at runtime.
 
 ## Key Rules
 
