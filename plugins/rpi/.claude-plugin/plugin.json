@@ -1,6 +1,6 @@
 {
   "name": "rpi",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "description": "Feature development workflow: arch → plan → implement → review → fix",
   "author": {
     "name": "Silas Rhyneer"
