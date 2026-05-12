@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "crouton-kit",
-  "version": "1.50.0",
+  "version": "1.50.1",
   "owner": {
     "name": "Silas Rhyneer",
     "email": "silas@example.com"
@@ -67,7 +67,7 @@
       "name": "rpi",
       "source": "./plugins/rpi",
       "description": "Feature development workflow: arch → plan → implement → review → fix",
-      "version": "1.8.0",
+      "version": "1.8.1",
       "keywords": [
         "workflow",
         "development",
