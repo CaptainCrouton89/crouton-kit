@@ -4,13 +4,13 @@ argument-hint: <topic or feature description>
 disable-model-invocation: true
 ---
 
-Build or update a context primer at `.claude/commands/init/<topic>.md` and keep `.claude/commands/init.md` (the `/init` router) in sync. Target: $ARGUMENTS
+Build or update a context primer at `.claude/commands/init-context/<topic>.md` and keep `.claude/commands/init-context.md` (the `/init-context` router) in sync. Target: $ARGUMENTS
 
 ## Step 1 — Inventory
 
-Existing primers: !`mkdir -p .claude/commands/init && ls .claude/commands/init/ 2>/dev/null || echo "(none)"`
+Existing primers: !`mkdir -p .claude/commands/init-context && ls .claude/commands/init-context/ 2>/dev/null || echo "(none)"`
 
-Current `init.md`: !`[ -f .claude/commands/init.md ] && cat .claude/commands/init.md || echo "(not yet present)"`
+Current `init-context.md`: !`[ -f .claude/commands/init-context.md ] && cat .claude/commands/init-context.md || echo "(not yet present)"`
 
 Repo top level: !`ls -d */ 2>/dev/null | head -30`
 
@@ -58,7 +58,7 @@ Keep asking (batched) until you're confident. Never guess and never write assump
 
 ## Step 4 — Write the primer
 
-Write `.claude/commands/init/<topic>.md` with the structure below. Every line carries weight — no narrative filler, no padding, no restating the obvious.
+Write `.claude/commands/init-context/<topic>.md` with the structure below. Every line carries weight — no narrative filler, no padding, no restating the obvious.
 
 ```markdown
 ---
@@ -88,7 +88,7 @@ Where work enters the system, with `file:line`.
 Non-obvious coupling. Things that look broken but aren't. Past footguns.
 
 ## Related
-- `init/<other-topic>.md` — how they interact
+- `init-context/<other-topic>.md` — how they interact
 ```
 
 Density rules:
@@ -97,9 +97,9 @@ Density rules:
 - Skip anything self-evident from a 30-second skim of the code
 - No "this section will cover…" meta-commentary
 
-## Step 5 — Update `init.md`
+## Step 5 — Update `init-context.md`
 
-Maintain `.claude/commands/init.md` as the router. If absent or stale, write/rewrite it:
+Maintain `.claude/commands/init-context.md` as the router. If absent or stale, write/rewrite it:
 
 ```markdown
 ---
@@ -107,7 +107,7 @@ description: Load architectural context for a topic
 argument-hint: <topic or question>
 ---
 
-Project context primers live in `.claude/commands/init/`. Pick the primer(s) most relevant to: $ARGUMENTS — read them, then proceed.
+Project context primers live in `.claude/commands/init-context/`. Pick the primer(s) most relevant to: $ARGUMENTS — read them, then proceed.
 
 **These primers are memory, not source of truth.** The code is authoritative. Before acting on anything from a primer, verify against the current code. If you find a disparity — drift, renames, removed features, new behavior — aggressively update or prune the primer file, the same way you'd maintain a memory file. If the user's changes obsolete a primer section after you've used it, update it before ending the turn.
 
