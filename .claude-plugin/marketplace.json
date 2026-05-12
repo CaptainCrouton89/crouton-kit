@@ -209,6 +209,18 @@
         "ports",
         "isolation"
       ]
+    },
+    {
+      "name": "crtr",
+      "source": "./plugins/crtr",
+      "description": "Bridge Claude Code to the crtr CLI — slash commands that orient the agent to installed crtr skills/plugins and load skill bodies on demand",
+      "version": "0.1.0",
+      "keywords": [
+        "crtr",
+        "skills",
+        "cli",
+        "bridge"
+      ]
     }
   ]
 }
