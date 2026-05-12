@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "crouton-kit",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "owner": {
     "name": "Silas Rhyneer",
     "email": "silas@example.com"
@@ -12,7 +12,7 @@
       "name": "devcore",
       "source": "./plugins/devcore",
       "description": "Core development agents and code quality hooks",
-      "version": "1.13.7",
+      "version": "1.14.0",
       "keywords": [
         "agents",
         "code-review",
