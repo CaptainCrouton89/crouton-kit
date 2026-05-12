@@ -1,7 +1,6 @@
 ---
-description: Debug an issue using adaptive multi-perspective investigation
+description: Diagnose root cause of an issue using adaptive multi-perspective investigation. Use when debugging bugs, errors, test failures, or unexpected behavior — especially intermittent, cross-module, or "stuck" problems where a single-pass read isn't enough.
 argument-hint: <description of issue / further advice>
-disable-model-invocation: true
 ---
 
 Debug the issue described in `$ARGUMENTS` and/or recent conversation context. Diagnose root cause—don't fix.
