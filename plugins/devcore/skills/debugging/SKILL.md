@@ -1,7 +1,7 @@
 ---
 name: debugging
 description: Systematic debugging methodologies for hard bugs. Covers rubber ducking, code tracing, hypothesis testing, logging strategies. Use when stuck on bugs that resist quick fixes.
-user-invocable: false
+user-invocable: true
 ---
 
 # Debugging Hard Bugs

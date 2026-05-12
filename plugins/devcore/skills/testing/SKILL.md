@@ -1,7 +1,7 @@
 ---
 name: testing
 description: Test writing and fixing methodology. Covers TDD, investigating failures, and delegating fixes to agents. Use when writing tests or diagnosing test failures.
-user-invocable: false
+user-invocable: true
 ---
 
 # Writing and Fixing Tests
