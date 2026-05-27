@@ -89,6 +89,131 @@ def check_fallback_patterns(content: str, file_path: str) -> list[str]:
 
     return issues
 
+def strip_strings_and_comments(content: str) -> str:
+    """Blank out string literals and comments so type checks don't false-positive
+    on 'any' appearing inside them.
+
+    Replaces string/comment characters with spaces while preserving newlines and
+    overall length, so reported line numbers stay accurate. Handles single/double
+    quoted strings (with escapes), template literals (keeping ${...} interpolations
+    as live code so 'as any' inside them is still caught), line comments, and block
+    comments. This is a lexer-style pass rather than a full AST parse because the
+    hook only sees edit fragments, which often won't parse as complete source.
+    """
+    result = list(content)
+    n = len(content)
+    i = 0
+    # Context stack. While inside a "${...}" interpolation we push "interp" for the
+    # opening brace and for every nested "{", popping on each "}", so the matching
+    # close returns us to the template.
+    stack: list[str] = []
+
+    def top() -> str | None:
+        return stack[-1] if stack else None
+
+    def blank(idx: int) -> None:
+        if content[idx] != "\n":
+            result[idx] = " "
+
+    while i < n:
+        c = content[i]
+        nxt = content[i + 1] if i + 1 < n else ""
+        ctx = top()
+
+        if ctx in ("single", "double"):
+            if c == "\\":
+                blank(i)
+                if i + 1 < n:
+                    blank(i + 1)
+                i += 2
+                continue
+            if (ctx == "single" and c == "'") or (ctx == "double" and c == '"'):
+                stack.pop()
+            blank(i)
+            i += 1
+            continue
+
+        if ctx == "template":
+            if c == "\\":
+                blank(i)
+                if i + 1 < n:
+                    blank(i + 1)
+                i += 2
+                continue
+            if c == "`":
+                stack.pop()
+                blank(i)
+                i += 1
+                continue
+            if c == "$" and nxt == "{":
+                stack.append("interp")
+                blank(i)
+                blank(i + 1)
+                i += 2
+                continue
+            blank(i)
+            i += 1
+            continue
+
+        if ctx == "line_comment":
+            if c == "\n":
+                stack.pop()
+            else:
+                blank(i)
+            i += 1
+            continue
+
+        if ctx == "block_comment":
+            if c == "*" and nxt == "/":
+                stack.pop()
+                blank(i)
+                blank(i + 1)
+                i += 2
+                continue
+            blank(i)
+            i += 1
+            continue
+
+        # NORMAL code, or inside a "${...}" interpolation (also live code).
+        if c == "/" and nxt == "/":
+            stack.append("line_comment")
+            blank(i)
+            blank(i + 1)
+            i += 2
+            continue
+        if c == "/" and nxt == "*":
+            stack.append("block_comment")
+            blank(i)
+            blank(i + 1)
+            i += 2
+            continue
+        if c == "'":
+            stack.append("single")
+            blank(i)
+            i += 1
+            continue
+        if c == '"':
+            stack.append("double")
+            blank(i)
+            i += 1
+            continue
+        if c == "`":
+            stack.append("template")
+            blank(i)
+            i += 1
+            continue
+        if ctx == "interp" and c == "{":
+            stack.append("interp")
+            i += 1
+            continue
+        if ctx == "interp" and c == "}":
+            stack.pop()
+            i += 1
+            continue
+        i += 1
+
+    return "".join(result)
+
 def check_any_type_usage(content: str, file_path: str) -> list[str]:
     """Check for 'any' type usage in TypeScript/JavaScript."""
     if not file_path.endswith(('.ts', '.tsx')):
@@ -105,20 +230,13 @@ def check_any_type_usage(content: str, file_path: str) -> list[str]:
         (r'Record<[^,>]+,\s*any>', "WARNING: 'Record<string, any>' pattern detected. Consider defining proper value types if possible."),
     ]
 
-    # Don't match 'any' in strings, comments, or variable names
-    # Split content into lines and check each line
-    lines = content.split('\n')
+    # Blank out strings and comments so 'any' inside them isn't flagged, while
+    # keeping line numbers intact for reporting.
+    cleaned = strip_strings_and_comments(content)
+    lines = cleaned.split('\n')
     for line_num, line in enumerate(lines, 1):
-        # Skip comments
-        if re.match(r'^\s*(/\*|//|\*|#)', line.strip()):
-            continue
-
-        # Skip string literals (simplified - may not catch all cases)
-        line_without_strings = re.sub(r'["\'][^"\']*["\']', '', line)
-        line_without_strings = re.sub(r'`[^`]*`', '', line_without_strings)
-
         for pattern, message in any_type_patterns:
-            if re.search(pattern, line_without_strings):
+            if re.search(pattern, line):
                 issues.append(f"{message} (Line {line_num})")
                 break  # Only report one issue per line
 
