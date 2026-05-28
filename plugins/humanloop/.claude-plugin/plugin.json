@@ -1,6 +1,6 @@
 {
   "name": "humanloop",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Human-in-the-loop decision TUI plus rich terminal rendering (hl + termrender)",
   "author": {
     "name": "Silas Rhyneer"

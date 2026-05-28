@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "crouton-kit",
-  "version": "1.51.1",
+  "version": "1.51.2",
   "owner": {
     "name": "Silas Rhyneer",
     "email": "silas@example.com"
@@ -12,7 +12,7 @@
       "name": "devcore",
       "source": "./plugins/devcore",
       "description": "Core development agents and code quality hooks",
-      "version": "1.15.1",
+      "version": "1.15.2",
       "keywords": [
         "agents",
         "code-review",
@@ -23,7 +23,7 @@
       "name": "learn",
       "source": "./plugins/learn",
       "description": "Interactive learning commands to help users understand code deeply",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "keywords": [
         "learning",
         "education",
@@ -186,7 +186,7 @@
       "name": "humanloop",
       "source": "./plugins/humanloop",
       "description": "Human-in-the-loop decision TUI (hl) plus rich terminal rendering (termrender) — replaces the termrender plugin",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "keywords": [
         "human-in-the-loop",
         "tui",
