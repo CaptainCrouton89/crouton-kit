@@ -1,12 +1,14 @@
 ---
 name: humanloop
-description: Pause agent execution to have the human validate decisions, choose between options, or answer freetext — via the `hl` CLI, which blocks on an interactive TUI and returns answers as JSON. Use for material design decisions, approval gates, and picks between meaningful alternatives. Not for trivial yes/no confirmations the agent should decide itself.
+description: Pause agent execution to have the human validate decisions, choose between options, answer freetext, or comment on a document — via the `hl` CLI. Every interaction is a kickoff that returns a job handle immediately; collect the human's answer later with `hl job result`. Use for material design decisions, approval gates, picks between meaningful alternatives, and markdown doc review. Not for trivial yes/no confirmations the agent should decide itself.
 allowed-tools: Bash(hl:*), Write, Read
 ---
 
 # humanloop — Human-in-the-Loop Decision Skill
 
-Use the `hl` CLI to ask the human a structured set of questions and block until they answer. It opens a TUI (auto-splits a tmux pane when `$TMUX` is set), persists progress to disk, and returns JSON.
+Use the `hl` CLI to ask the human a structured set of questions (a *deck*) or get freeform comments on a markdown doc (a *review*). It opens a TUI (auto-splits a tmux pane when `$TMUX` is set), persists progress to disk, and returns JSON.
+
+Every interaction is a **kickoff**: the launch call (`hl deck ask`, `hl review open`) spawns the human's TUI in a detached pane and returns a `job_id` in well under a second — it does *not* wait for the human. You collect the answer separately with `hl job result`. See **[Long-running: kick off, then collect](#long-running-kick-off-then-collect)** — this is the single most important thing to get right, because a human may take many minutes or step away entirely.
 
 ## When to use this
 
@@ -40,10 +42,23 @@ The deck is read by a busy, technical human. Write with **progressive disclosure
 
 ## Workflow
 
-1. Write a deck JSON file matching `hl schema`.
-2. Run `hl create <file>`. Blocks on the TUI; prints a JSON result on success.
-3. Parse the output. Match answers to questions by `id` — **never by index**, since the human can skip questions.
-4. Act on the answers.
+Every leaf reads **one JSON object from stdin** and writes one JSON object to stdout. There are no file-path arguments — pipe the input in.
+
+1. Build the deck object (see the example below); validate it with `hl deck validate` if unsure.
+2. **Kick off:** `echo '{"deck":{…}}' | hl deck ask` → returns `{job_id, dir, follow_up}` immediately. The human's TUI is now open in a pane; you are *not* blocked.
+3. **Collect** (see [Long-running](#long-running-kick-off-then-collect)): `echo '{"job_id":"…","wait":true}' | hl job result` blocks until the human finishes, then prints the resolution. Run this **backgrounded**.
+4. Parse the output. Match answers to questions by `id` — **never by index**, since the human can skip questions.
+5. Act on the answers.
+
+## Long-running: kick off, then collect
+
+The human is slow and may walk away. Treat every interaction as fire-and-forget plus a deferred collect:
+
+- **`hl deck ask` and `hl review open` return in <1s** with a `job_id`. They never wait for the human. The `follow_up` string in their output tells you the exact collect call.
+- **Collect with `hl job result`** + `{"wait":true}`. This is the call that blocks until the human finishes (or `{"wait":false}` to poll once — returns `{error:"not_ready"}` exit 1 if they're not done).
+- **Run the waiting collect as a backgrounded task — do not await it inline.** In Claude Code, set the Bash call to `run_in_background`; you will be notified when it completes, and you stay free to do other work meanwhile. Blocking the foreground on a human who might take 20 minutes (and overrunning the 10-minute command ceiling) is the failure this design exists to prevent.
+- **Inspect without collecting:** `hl job status` → `{state: live|done|failed|canceled, kind, age_seconds, last_event}`. `hl job logs` streams JSONL events. `hl job cancel` is best-effort.
+- **Mid-flight edits:** while a deck job is live, `hl deck update` rewrites its questions and the pane reloads within ~1s (answers to surviving ids are kept).
 
 ## Input example (pyramid content)
 
@@ -76,6 +91,8 @@ The deck is read by a busy, technical human. Write with **progressive disclosure
 
 ## Output shape
 
+`hl job result` for a deck job returns a resolution envelope; the `responses` array is what you act on:
+
 ```json
 {
   "responses": [
@@ -92,45 +109,55 @@ The deck is read by a busy, technical human. Write with **progressive disclosure
 
 ## Invocation
 
-```
-hl create deck.json                     # block, print JSON to stdout
-hl create deck.json --output ans.json   # write JSON to file instead
-hl create deck.json --no-visuals        # skip haiku-generated visual context (faster)
-hl create deck.json --no-tmux           # force TUI in current pane inside tmux
-hl schema                               # print the input JSON schema
+Every leaf is `hl <noun> <verb>`, reads one JSON object on stdin, writes one on stdout. `-h` on any node is the full spec.
+
+```bash
+# Deck (structured questions)
+echo '{"deck":{…}}'                | hl deck ask        # kickoff → {job_id, dir, follow_up}
+echo '{"deck":{…}}'                | hl deck validate   # preflight, no side effects
+echo '{"job_id":"…","deck":{…}}'   | hl deck update     # rewrite a live deck; pane reloads
+
+# Review (markdown doc feedback)
+echo '{"file":"/abs/doc.md"}'      | hl review open     # kickoff → {job_id, output, follow_up}
+
+# Collect / inspect any job
+echo '{"job_id":"…","wait":true}'  | hl job result      # block for the human, then print result
+echo '{"job_id":"…"}'              | hl job status      # state snapshot, never blocks
+echo '{"job_id":"…","follow":true}'| hl job logs        # stream JSONL events
+
+echo '{"kind":"deck"}'             | hl schema show     # JSON Schema for an input type
 ```
 
 Typical end-to-end flow:
 
 ```bash
-# 1. Write the deck
-cat > /tmp/d.json <<'EOF'
-{"interactions":[{"id":"x","title":"Database",
- "subtitle":"Postgres or SQLite for the capture store?",
- "body":"Concurrent writes are the crux. Postgres handles them natively; SQLite serializes.",
- "options":[{"id":"pg","label":"Postgres"},{"id":"sqlite","label":"SQLite"}],
- "allowFreetext":true}]}
-EOF
+# 1. Kick off — returns immediately with a job_id
+JOB=$(echo '{"deck":{"interactions":[{"id":"db","title":"Database",
+  "subtitle":"Postgres or SQLite for the capture store?",
+  "body":"Concurrent writes are the crux. Postgres handles them natively; SQLite serializes.",
+  "options":[{"id":"pg","label":"Postgres"},{"id":"sqlite","label":"SQLite"}],
+  "allowFreetext":true}]}}' | hl deck ask | jq -r .job_id)
 
-# 2. Block on the TUI, capture JSON
-hl create /tmp/d.json > /tmp/answers.json
+# 2. Collect — BACKGROUND this (the human may take many minutes)
+echo "{\"job_id\":\"$JOB\",\"wait\":true}" | hl job result > /tmp/answers.json
 
 # 3. Look up the answer by id
-jq '.responses[] | select(.id=="x")' /tmp/answers.json
+jq '.responses[] | select(.id=="db")' /tmp/answers.json
 ```
 
 ## Key behaviors
 
-- **tmux auto-split.** When `$TMUX` is set, the TUI opens in a new pane to the right; the caller keeps focus. Disable with `--no-tmux`.
-- **Progress persistence.** Responses are atomically written to `<file>.progress.json` after every change. If the process is killed, the next `hl create <file>` resumes from where the human left off. The progress file is deleted on full completion; partial files are preserved.
-- **Visual context.** With a session id (auto-detected from the most recent Claude Code session in cwd, or pass `--session-id`), Haiku generates a short ANSI context block per interaction grounded in the conversation history. Disable with `--no-visuals`.
+- **tmux auto-split.** When `$TMUX` is set, the TUI/editor opens in a detached pane; the caller keeps focus and returns immediately. Pass `{"tmux":false}` to force the current pane (degraded: the launch call then blocks in-process).
+- **Files are the source of truth.** Each job lives in its own dir (`dir` in the kickoff output): `deck.json`/`review.vim`, the live `progress.json`/autosaved feedback, the terminal `response.json`/`feedback.json` sidecar, and `job.log` (JSONL). A killed job is recoverable — re-collect by `job_id`; appearance of the sidecar is the done signal.
+- **Review live-reloads.** `hl review open` opens the doc read-only; if the file is rewritten on disk while the human reviews, the pane reloads it automatically (their line-anchored comments are kept). Edit the doc and they see the latest without reopening.
+- **Visual context (deck).** With a session id (auto-detected from the most recent Claude Code session in cwd, or pass `sessionId`), Haiku generates a short ANSI context block per interaction. Pass `{"visuals":false}` to skip it.
 
 ## Exit codes
 
-- `0` — success; JSON emitted to stdout or the file passed to `--output`.
-- `1` — error on stderr. Common causes: missing file, invalid JSON, empty `interactions` array, no TTY. The error message enumerates the fix.
+- `0` — success; one JSON object (or JSONL for `job logs`) on stdout.
+- non-zero — error as a JSON object on stdout: `{error, message, next}`. Codes: `bad_stdin_json | bad_input | deck_invalid | file_not_found | editor_not_found | job_not_found | not_ready | not_in_tmux | internal`. `next` tells you how to recover.
 
-If the caller captures stdin and the TUI cannot attach, run inside tmux so `hl` can auto-dispatch to a new pane.
+If the launch call can't open a pane (no `$TMUX`), it falls back to running in-process and blocks; run inside tmux so it can auto-dispatch to a new pane and return immediately.
 
 ## Authoring tips
 
