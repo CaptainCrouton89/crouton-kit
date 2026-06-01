@@ -5,6 +5,6 @@ allowed-tools: Bash(crtr:*)
 
 The user wants to spawn a fresh sibling claude pane. Follow the CLI guidance below.
 
-!`crtr agent new prompt -h`
+!`crtr agent new -h`
 
 $ARGUMENTS

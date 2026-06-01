@@ -5,6 +5,6 @@ allowed-tools: Bash(crtr:*)
 
 The user wants to hand off a review of a plan or spec artifact. Follow the CLI guidance below.
 
-!`crtr agent new reviewer -h`
+!`crtr mode reviewer -h`
 
 $ARGUMENTS

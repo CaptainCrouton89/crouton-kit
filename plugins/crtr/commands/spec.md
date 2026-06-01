@@ -5,6 +5,6 @@ allowed-tools: Bash(crtr:*)
 
 The user has requested to start a spec. Follow the workflow below.
 
-!`crtr agent spec new -h`
+!`crtr mode spec new -h`
 
 $ARGUMENTS
