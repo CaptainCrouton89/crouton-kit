@@ -1,6 +1,6 @@
 {
   "name": "crtr",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Bridge Claude Code to the crtr CLI — slash commands that orient the agent to installed crtr skills/plugins and load skill bodies on demand. Requires the `crtr` binary on PATH (install via `npm i -g @crouton-kit/crouter`).",
   "author": {
     "name": "Silas Rhyneer"
