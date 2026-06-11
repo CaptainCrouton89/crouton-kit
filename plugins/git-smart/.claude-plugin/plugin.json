@@ -1,6 +1,6 @@
 {
   "name": "git-smart",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Smart git commits with security and quality review",
   "author": {
     "name": "Silas Rhyneer"
