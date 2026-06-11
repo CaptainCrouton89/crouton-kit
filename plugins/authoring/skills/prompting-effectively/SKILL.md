@@ -7,8 +7,6 @@ description: Structure Claude prompts for clarity and better results using roles
 
 Effective prompts have structure. This skill covers the principles that make prompts clear, reliable, and maintainable — whether you're writing commands, agents, modes, skills, or API system prompts.
 
-**MANDATORY:** Before authoring any prompt for internal Claude tools (skills, agents, modes, commands, subagent prompts), read [opus-4-7.md](opus-4-7.md) — the Opus 4.7-specific behavior reference. It covers model-specific tuning (effort, tool triggering, literal instruction following, subagent spawning, thinking, agentic patterns) that this architecture overview does not.
-
 For detailed patterns and examples of the architecture principles below, see [reference.md](reference.md).
 
 ## The Two Zones
@@ -112,7 +110,7 @@ What goes wrong if you skip the delete step:
 2. **Rephrase positively** when the field genuinely lacks a description. "DO NOT use ellipses" → "Use periods instead" — describe the target, not its inverse.
 3. **Prohibit** only when you have observed the failure *without* any prompt pushing the model there. Rare. The bar is evidence, not preference.
 
-**When negative framing earns its place:** the model has an observed prior toward the wrong behavior with no prompt cause. "Avoid Inter" works because Opus genuinely defaults to Inter. "Be conservative" in a code review actively suppresses findings (see opus-4-7.md). Otherwise: trust the default.
+**When negative framing earns its place:** the model has an observed prior toward the wrong behavior with no prompt cause. "Avoid Inter" works because Opus genuinely defaults to Inter. "Be conservative" in a code review actively suppresses findings. Otherwise: trust the default.
 
 **Heuristic:** before adding *anything* in response to bad output, find the line in the prompt that caused it. If you find one, delete it and stop. Telling the model to "write normally" or "respond naturally" is a token-burning no-op — it would have done that already if you hadn't told it otherwise.
 
