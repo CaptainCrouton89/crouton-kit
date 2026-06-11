@@ -1,7 +1,7 @@
 ---
 description: Stage and commit changes into logical commits
-argument-hint: [scope] [--push] [--all]
-allowed-tools: Bash(git:*)
+argument-hint: [scope] [--push] [--all] [--pr]
+allowed-tools: Bash(git:*), SlashCommand(/git-smart:pr:*)
 disable-model-invocation: true
 ---
 
@@ -12,6 +12,7 @@ Stage and commit changes into logical commits.
 Parse flags from args:
 - `--push` → push to remote after committing
 - `--all` → commit ALL uncommitted changes (not just conversation-relevant ones)
+- `--pr` → after committing, run the `/git-smart:pr` command to open a PR
 - Remaining positional text → scope filter
 
 ## Context
@@ -58,6 +59,10 @@ Run `git push`. If no upstream, use `git push -u origin HEAD`.
 
 Verify `git status --short` is empty. If not, resolve remaining files (gitignore or remove) until status is clean.
 
+### 6. Create PR (if `--pr`)
+
+Invoke the `/git-smart:pr` command via the SlashCommand tool. It handles pushing the branch, creating the PR, and monitoring CI. Forward any args the user provided that `/pr` understands (target branch, `--merge`/`--rebase`, `-a`).
+
 ## Output
 
-List commits created with their messages. If pushed, include remote and branch.
+List commits created with their messages. If pushed, include remote and branch. If `--pr`, include the PR URL.

@@ -1,7 +1,6 @@
 ---
 description: Create PR, optionally merge/rebase target, monitor CI, fix failures
 argument-hint: [target-branch] [--merge | --rebase] [-a] — -a enables autonomous fix/repush loop
-disable-model-invocation: true
 ---
 
 Create a pull request and optionally integrate the target branch first. Monitor CI checks and report results.
