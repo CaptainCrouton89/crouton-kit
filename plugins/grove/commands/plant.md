@@ -1,7 +1,7 @@
 ---
 description: Create a parallel instance — auto-configures seeded projects, discovers ports for new ones
 allowed-tools: Bash(*), Read, Glob, Grep, Agent
-argument-hint: <source-path> <instance-name> [--slot N]
+argument-hint: <source-path> [instance-name] [--slot N]
 ---
 
 # Grove Plant
@@ -19,7 +19,7 @@ Create an isolated parallel instance of a project with automatic port allocation
 
 Parse `$ARGUMENTS` for:
 - `source-path` — absolute or relative path to the source project
-- `instance-name` — name for the new instance
+- `instance-name` — **optional** name for the new instance. When omitted, the CLI names the instance after its slot number (`1`, `2`, `3`, ...). Default to omitting it — only pass a name when the user explicitly provides one.
 - `--slot N` — optional explicit slot (1-9, auto-assigned if omitted)
 
 Check if the project is already registered:
@@ -54,7 +54,9 @@ grove register <source-path> --from-config
 ## Step 4: Plant
 
 ```bash
-grove plant <project> <instance-name> [--slot N]
+# Omit the name to auto-name the instance after its slot (1, 2, 3, ...).
+# Only pass <instance-name> if the user explicitly asked for a custom name.
+grove plant <project> [instance-name] [--slot N]
 ```
 
 Parse the `--- grove-output ---` JSON block from stdout. It contains:
@@ -197,7 +199,9 @@ grove register <source-path> --name <project-name> \
 ## Step 9: Plant
 
 ```bash
-grove plant <project> <instance-name> [--slot N]
+# Omit the name to auto-name the instance after its slot (1, 2, 3, ...).
+# Only pass <instance-name> if the user explicitly asked for a custom name.
+grove plant <project> [instance-name] [--slot N]
 ```
 
 Parse the `--- grove-output ---` JSON block from stdout. It contains:
