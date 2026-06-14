@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "crouton-kit",
-  "version": "1.52.0",
+  "version": "1.53.0",
   "owner": {
     "name": "Silas Rhyneer",
     "email": "silas@example.com"
@@ -201,7 +201,7 @@
       "name": "grove",
       "source": "./plugins/grove",
       "description": "Manage parallel project instances — plant, adopt, uproot, and monitor isolated copies",
-      "version": "1.6.2",
+      "version": "1.7.0",
       "keywords": [
         "instances",
         "parallel",

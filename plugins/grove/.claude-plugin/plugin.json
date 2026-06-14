@@ -1,6 +1,6 @@
 {
   "name": "grove",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Manage parallel project instances — plant, adopt, uproot, and monitor isolated copies of your codebase",
   "author": {
     "name": "Silas Rhyneer"
