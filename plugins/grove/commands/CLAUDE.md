@@ -115,3 +115,12 @@ Seeded projects use `setup.sh` instead of the init script pattern.
 ## `/uproot` does not auto-clean
 
 `grove uproot` removes the directory and registry entry but does **not** kill running processes or drop databases. After uprooting, read the cleanup hints in the command output and run them manually (kill by port, `psql` to drop slot DB).
+
+## Keeping grove current
+
+grove reports when it's behind: running any `grove` command may print a notice to **stderr** like `[grove] update available: X → Y` (throttled, so not on every run). When you see it, update grove before continuing — and use the package manager that installed it, **never a hardcoded `npm i -g`** (a wrong guess drops a conflicting parallel global install):
+
+1. Inspect the install path: `readlink -f "$(command -v grove)"`.
+2. Path contains `/pnpm/` → `pnpm add -g @crouton-kit/grove@latest`; `/.bun/` → `bun add -g @crouton-kit/grove@latest`; `.yarn`/`yarn/global` → `yarn global add @crouton-kit/grove@latest`; otherwise → `npm i -g @crouton-kit/grove@latest`.
+
+The SessionStart hook only checks that grove exists — it deliberately does not update it, for the same reason (no assuming a package manager).
