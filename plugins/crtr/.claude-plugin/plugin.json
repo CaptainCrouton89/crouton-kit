@@ -1,6 +1,6 @@
 {
   "name": "crtr",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Bridge Claude Code to the crtr CLI with routing-only slash commands. Requires the `crtr` binary on PATH (install via `npm i -g @crouton-kit/crouter`).",
   "author": {
     "name": "Silas Rhyneer"
