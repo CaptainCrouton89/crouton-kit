@@ -213,11 +213,10 @@
     {
       "name": "crtr",
       "source": "./plugins/crtr",
-      "description": "Bridge Claude Code to the crtr CLI — slash commands that orient the agent to installed crtr skills/plugins and load skill bodies on demand",
+      "description": "Bridge Claude Code to the crtr CLI with routing-only slash commands",
       "version": "0.3.4",
       "keywords": [
         "crtr",
-        "skills",
         "cli",
         "bridge"
       ]
